@@ -8,6 +8,7 @@ stmt='''CREATE TABLE User
     Surname TEXT NOT NULL
     DOB TEXT
     Kudos INT NOT NULL
+    Hash TEXT NOT NULL
     )'''
 db.execute(stmt)
 db.close()

@@ -12,11 +12,25 @@ class User:
             user=results[0]
             self.load(user)
 
+    def authenticate(self,hash):
+        salt = hash[:64]
+        hash = hash[64:]
+        pwdhash = hashlib.pbkdf2_hmac('sha512', input("please enter your password to authenticate: ").encode('utf-8'), salt.encode('ascii'), 100000)
+        pwdhash = binascii.hexlify(pwdhash).decode('ascii')
+        return pwdhash == hash
+
+    def storePwd(self):
+        salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
+        pwdhash = hashlib.pbkdf2_hmac('sha512', input("please enter a new password: ").encode('utf-8'), salt, 100000)
+        pwdhash = binascii.hexlify(pwdhash)
+        return (salt + pwdhash).decode('ascii')
+
     def load(self,user):
-        self.forname=user[1]
-        self.surname=user[2]
-        self.DOB=user[3]
-        self.Kudos=user[4]
+        if self.authenticate(user[5]):
+            self.forname=user[1]
+            self.surname=user[2]
+            self.DOB=user[3]
+            self.Kudos=user[4]
 
     def create(self):
         db=sqlite3.connect("user.db")
@@ -24,7 +38,8 @@ class User:
         self.surname=input("please enter your surname: ")
         self.DOB=input("please enter your DOB: ")
         self.Kudos=0
-        stmt='''INSERT INTO User (UserID,Forname,Surname,DOB,Kudos) VALUES ({self.id},{self.forname},{self.surname},{self.DOB},{self.Kudos})
+        pwdHash=self.storePwd()
+        stmt='''INSERT INTO User (UserID,Forname,Surname,DOB,Kudos,Hash) VALUES ({self.id},{self.forname},{self.surname},{self.DOB},{self.Kudos},{pwdHash})
         db.close()
 
     def save(self,id):
