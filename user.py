@@ -39,10 +39,10 @@ class User:
         self.DOB=input("please enter your DOB: ")
         self.Kudos=0
         pwdHash=self.storePwd()
-        stmt='''INSERT INTO User (UserID,Forname,Surname,DOB,Kudos,Hash) VALUES ({self.id},{self.forname},{self.surname},{self.DOB},{self.Kudos},{pwdHash})
+        stmt='''INSERT INTO User (UserID,Forname,Surname,DOB,Kudos,Hash) VALUES ({self.id},{self.forname},{self.surname},{self.DOB},{self.Kudos},{pwdHash})'''
         db.close()
 
-    def save(self,id):
+    def save(self,id):XT NOT NULL
         db=sqlite3.connect("user.db")
         stmt="UPDATE User set Forname = {self.forname} WHERE UserID={self.id}"
         db.execute(stmt)
