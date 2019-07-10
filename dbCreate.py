@@ -1,4 +1,8 @@
-import sqlite3
+import sqlite3,os
+try:
+    os.remove("user.db")
+except:
+    pass
 db=sqlite3.connect("user.db")
 print("created database")
 stmt='''CREATE TABLE User

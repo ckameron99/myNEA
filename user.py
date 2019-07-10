@@ -1,10 +1,10 @@
-import sqlite3
+import sqlite3, hashlib, binascii, os
 class User:
     def __init__(self,id):
         self.id=id
         db=sqlite3.connect("user.db")
-        stmt=f"SELECT * FROM User WHERE UserID={self.id}"
-        results=db.execute(stmt)
+        stmt=f"SELECT * FROM User WHERE UserID='{self.id}'"
+        results=[result for result in db.execute(stmt)]
         db.close()
         if len(results)==0:
             self.create()
@@ -31,18 +31,22 @@ class User:
             self.surname=user[2]
             self.DOB=user[3]
             self.Kudos=user[4]
+        else:
+            print("incorrect password")
 
     def create(self):
-        db=sqlite3.connect("user.db")
+        db=sqlite3.connect("user.db")})
         self.forname=input("please enter your forname: ")
         self.surname=input("please enter your surname: ")
         self.DOB=input("please enter your DOB: ")
         self.Kudos=0
         pwdHash=self.storePwd()
-        stmt='''INSERT INTO User (UserID,Forname,Surname,DOB,Kudos,Hash) VALUES ({self.id},{self.forname},{self.surname},{self.DOB},{self.Kudos},{pwdHash})'''
+        stmt=f"""INSERT INTO User (UserID,Forname,Surname,DOB,Kudos,Hash) VALUES ('{self.id}','{self.forname}','{self.surname}','{self.DOB}',{self.Kudos},'{pwdHash}')"""
+        db.execute(stmt)
+        db.commit()
         db.close()
 
-    def save(self,id):XT NOT NULL
+    def save(self,id):
         db=sqlite3.connect("user.db")
         stmt="UPDATE User set Forname = {self.forname} WHERE UserID={self.id}"
         db.execute(stmt)
