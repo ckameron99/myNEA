@@ -1,27 +1,37 @@
 import sqlite3, hashlib, binascii, os
 class User:
-    def __init__(self,id):
+    def __init__(self,id,forname=None,surname=None,DOB=None):
         self.id=id
         db=sqlite3.connect("user.db")
         stmt=f"SELECT * FROM User WHERE UserID='{self.id}'"
         results=[result for result in db.execute(stmt)]
         db.close()
         if len(results)==0:
-            self.create()
+            if forname==None:
+                forname=input("please enter your forname: ")
+            if surname==None:
+                surname=input("please enter your surname: ")
+            if DOB==None:
+                DOB=input("please enter your DOB: ")
+            self.create(forname,surname,DOB)
         else:
             user=results[0]
             self.load(user)
 
-    def authenticate(self,hash):
+    def authenticate(self,hash,pwd=None):
+        if pwd==None:
+            pwd=input("please enter your password to authenticate: ")
         salt = hash[:64]
         hash = hash[64:]
-        pwdhash = hashlib.pbkdf2_hmac('sha512', input("please enter your password to authenticate: ").encode('utf-8'), salt.encode('ascii'), 100000)
+        pwdhash = hashlib.pbkdf2_hmac('sha512', pwd.encode('utf-8'), salt.encode('ascii'), 100000)
         pwdhash = binascii.hexlify(pwdhash).decode('ascii')
         return pwdhash == hash
 
-    def storePwd(self):
+    def storePwd(self,newPwd=None):
+        if newPwd==None:
+            newPwd=input("please enter a new password: ")
         salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
-        pwdhash = hashlib.pbkdf2_hmac('sha512', input("please enter a new password: ").encode('utf-8'), salt, 100000)
+        pwdhash = hashlib.pbkdf2_hmac('sha512', newPwd.encode('utf-8'), salt, 100000)
         pwdhash = binascii.hexlify(pwdhash)
         return (salt + pwdhash).decode('ascii')
 
@@ -32,13 +42,13 @@ class User:
             self.DOB=user[3]
             self.Kudos=user[4]
         else:
-            print("incorrect password")
+            raise NotImplementedError("incorrect password")
 
-    def create(self):
-        db=sqlite3.connect("user.db")})
-        self.forname=input("please enter your forname: ")
-        self.surname=input("please enter your surname: ")
-        self.DOB=input("please enter your DOB: ")
+    def create(self,forname,surname,DOB):
+        db=sqlite3.connect("user.db")
+        self.forname=forname
+        self.surname=surname
+        self.DOB=DOB
         self.Kudos=0
         pwdHash=self.storePwd()
         stmt=f"""INSERT INTO User (UserID,Forname,Surname,DOB,Kudos,Hash) VALUES ('{self.id}','{self.forname}','{self.surname}','{self.DOB}',{self.Kudos},'{pwdHash}')"""
