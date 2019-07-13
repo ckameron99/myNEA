@@ -44,8 +44,14 @@ class User:
         else:
             raise NotImplementedError("incorrect password")
 
-    def create(self,forname,surname,DOB):
+    def create(self,forname=None,surname=None,DOB=None):
         db=sqlite3.connect("user.db")
+        if forname==None:
+            forname=input("please enter your forname: ")
+        if surname==None:
+            surname=input("please enter your surname: ")
+        if DOB==None:
+            DOB=input("please enter your DOB: ")
         self.forname=forname
         self.surname=surname
         self.DOB=DOB
