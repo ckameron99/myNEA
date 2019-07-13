@@ -42,7 +42,10 @@ class User:
             self.DOB=user[3]
             self.Kudos=user[4]
         else:
-            raise NotImplementedError("incorrect password")
+            self.authenticationError("Invalid username or password!")
+
+    def authenticationError(self,error):
+        raise NotImplementedError(error)
 
     def create(self,forname=None,surname=None,DOB=None):
         db=sqlite3.connect("user.db")
