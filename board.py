@@ -1,9 +1,10 @@
 import numpy, itertools
 class Board:
-    def __init__(self,dimensions=[3,3]):
+    def __init__(self,dimensions=[3,3],numPlayers=2):
         self.cells=numpy.zeros(dimensions)
         self.dimensions=len(dimensions)
         self.sizes=dimensions
+        self.players=[]
 
     def __repr__(self):
         return self.cells.__repr__()
