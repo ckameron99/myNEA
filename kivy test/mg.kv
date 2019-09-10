@@ -8,29 +8,13 @@
             on_press: root.manager.current = 'settings'
 
 <SettingsScreen>:
+    grid: Grid
     GridLayout:
+        id: Grid
         size_hint: None,None
         size: max(min(root.width,root.height)/3*2,200),max(min(root.width,root.height)/3*2,200)
         pos_hint: {"center_x":0.5, "center_y":0.5}
-        cols: 3
-        Button:
-            text: " "
-        Button:
-            text: " "
-        Button:
-            text: " "
-        Button:
-            text: " "
-        Button:
-            text: " "
-        Button:
-            text: " "
-        Button:
-            text: " "
-        Button:
-            text: " "
-        Button:
-            text: " "
+        cols: root.w
 
 
 
