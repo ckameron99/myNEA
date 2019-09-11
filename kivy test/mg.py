@@ -2,24 +2,47 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
 from kivy.properties import ObjectProperty
 Builder.load_file("mg.kv")
 class MenuScreen(Screen):
-    pass
+    def __init__(self,**kwargs):
+        self.x=3
+        self.y=3
+        super(MenuScreen,self).__init__(**kwargs)
+    def update(self,x,y):
+        if x!=None:
+            self.x=int(x)
+        if y!=None:
+            self.y=int(y)
+        print(self.x,self,y)
+    def start(self):
+        sm.add_widget(SettingsScreen(name='game',w=self.y,h=self.x))
+        self.manager.current = 'game'
+
 
 class SettingsScreen(Screen):
-    h=3
-    w=4
     grid=ObjectProperty(None)
+    def getw(self):
+        return self.w
+    def __init__(self,w,h,**kwargs):
+        self.b=[]
+        self.w=w
+        super(SettingsScreen,self).__init__(**kwargs)
+        for y in range(h):
+            self.b.append([])
+            for x in range(w):
+                self.b[-1].append(Button(text="{} . {}".format(x,y)))
+                self.grid.add_widget(self.b[-1][-1])
 
 # Create the screen manager
 sm = ScreenManager()
-sm.add_widget(MenuScreen(name='menu'))
-a=SettingsScreen(name='settings')
-for y in range(SettingsScreen.h):
-    for x in range(SettingsScreen.w):
-        a.grid.add_widget(Button(text="{} . {}".format(x,y)))
-sm.add_widget(a)
+b=MenuScreen(name="menu")
+#width=TextInput(text="3", multiline=False,height=50, size_hint= (None,None))
+#height=TextInput(text="3", multiline=False,height=50, size_hint= (None,None))
+#b.add_widget(width)
+#b.add_widget(height)
+sm.add_widget(b)
 class TestApp(App):
 
     def build(self):
