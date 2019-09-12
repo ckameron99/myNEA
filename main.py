@@ -9,7 +9,7 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty,NumericProperty
 
 Builder.load_file("main.kv")
 
@@ -40,15 +40,16 @@ class NByN(Screen):
         for y in range(h):
             self.b.append([])
             for x in range(w):
-                self.b[-1].append(Button(text="{} . {}".format(x,y)))
+                self.b[-1].append(Tile(text="".format(x,y),xLoc=x,yLoc=y))
                 self.b[-1][-1].bind(on_press=self.makeMove)
                 self.grid.add_widget(self.b[-1][-1])
     def makeMove(self,instance):
-        txt=instance.text
-        x=int(txt[0])
-        y=int(txt[-1])
-        self.board.placeMove((x,y),1)
+        self.board.placeMove((instance.xLoc,instance.yLoc),1)
         self.board.checkWin()
+
+class Tile(Button):
+    xLoc=NumericProperty(1)
+    yLoc=NumericProperty(1)
 
 class MainApp(App):
     def __init__(self):
