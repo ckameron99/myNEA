@@ -5,6 +5,8 @@ from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.properties import ObjectProperty
 import time
+import numpy
+import itertools
 Builder.load_file("mg.kv")
 class MenuScreen(Screen):
     def __init__(self,**kwargs):
@@ -30,12 +32,20 @@ class SettingsScreen(Screen):
     def __init__(self,w,h,**kwargs):
         self.b=[]
         self.w=w
+        self.board=Board(dimensions=[w,h])
         super(SettingsScreen,self).__init__(**kwargs)
         for y in range(h):
             self.b.append([])
             for x in range(w):
                 self.b[-1].append(Button(text="{} . {}".format(x,y)))
+                self.b[-1][-1].bind(on_press=self.makeMove)
                 self.grid.add_widget(self.b[-1][-1])
+    def makeMove(self,instance):
+        txt=instance.text
+        x=int(txt[0])
+        y=int(txt[-1])
+        self.board.placeMove((x,y),1)
+        self.board.checkWin()
 
 # Create the screen manager
 sm = ScreenManager()
@@ -46,6 +56,38 @@ class TestApp(App):
 
     def build(self):
         return sm
+
+
+class Board:
+    def __init__(self,dimensions=[3,3],numPlayers=2):
+        self.cells=numpy.zeros(dimensions)
+        self.dimensions=len(dimensions)
+        self.sizes=dimensions
+        self.players=[]
+
+    def __repr__(self):
+        return self.cells.__repr__()
+
+    def placeMove(self,coordinates,value):
+        self.cells.itemset(coordinates,value) # coordinates has to be passed as a tuple
+        print(self.checkWin())
+
+    def checkWin(self, nInARow=3, value=1):
+        def checkWinAdj(nInARow,coordinates,value,adjCoord):
+            direction=numpy.array(adjCoord)-numpy.array(coordinates)
+            if min(numpy.array(coordinates)+(nInARow-1)*direction)>=0 and all(numpy.array(coordinates)+(nInARow-1)*direction<self.sizes):
+                return all([self.cells[tuple(numpy.array(coordinates)+dist*numpy.array(direction))]==value for dist in range(nInARow)])
+
+        def checkWinCell(nInARow,coordinates,value):
+            pos=[[max(0,d-1),d,min(d+1,self.sizes[dimension]-1)] for dimension,d in enumerate(coordinates)]
+            indexes=itertools.product("".join([chr(ord("0")+i) for i in range(3)]),repeat=len(coordinates))
+            surroundingCoordinates=[[pos[i][int(index[i])] for i in range(len(index))] for index in indexes]
+            surroundingCoordinates=[list(coord) for coord in set(tuple(i) for i in surroundingCoordinates)]
+            surroundingCoordinates.remove(list(coordinates))
+            return any([checkWinAdj(nInARow,coordinates,value,adjCoord) for adjCoord in surroundingCoordinates])
+
+        iterable=numpy.nditer(self.cells,flags=['multi_index'])
+        return any(checkWinCell(nInARow,iterable.multi_index,value) for cell in iterable if cell==value)
 
 if __name__ == '__main__':
     TestApp().run()
