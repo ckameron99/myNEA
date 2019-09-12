@@ -34,4 +34,6 @@
         top: root.height- max(10,root.height/100*3)
         Button:
             text: 'Back to menu'
-            on_press: root.manager.current = 'menu'
+            on_press:
+                root.manager.current = 'menu'
+                root.manager.remove_widget(root)
