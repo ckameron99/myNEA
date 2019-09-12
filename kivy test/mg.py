@@ -20,7 +20,7 @@ class MenuScreen(Screen):
             self.yDim=int(y)
     def start(self):
         self.settingsScreen=SettingsScreen(name='game',w=self.yDim,h=self.xDim)
-        sm.add_widget(self.settingsScreen)
+        self.manager.add_widget(self.settingsScreen)
         self.manager.current='game'
 
 
@@ -48,13 +48,15 @@ class SettingsScreen(Screen):
         self.board.checkWin()
 
 # Create the screen manager
-sm = ScreenManager()
-b=MenuScreen(name="menu")
-sm.add_widget(b)
-sm.current='menu'
-class TestApp(App):
 
+class TestApp(App):
+    def __init__(self,**kwargs):
+        super().__init__()
     def build(self):
+        sm = ScreenManager()
+        b=MenuScreen(name="menu")
+        sm.add_widget(b)
+        sm.current='menu'
         return sm
 
 
