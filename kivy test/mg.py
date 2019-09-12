@@ -4,21 +4,29 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.properties import ObjectProperty
+import time
 Builder.load_file("mg.kv")
 class MenuScreen(Screen):
     def __init__(self,**kwargs):
-        self.x=3
-        self.y=3
+        self.xDim=3
+        self.yDim=3
+        self.test=0
         super(MenuScreen,self).__init__(**kwargs)
+        #self.settingsScreen=SettingsScreen(name='game',w=self.yDim,h=self.xDim)
+        #sm.add_widget(self.settingsScreen)
     def update(self,x,y):
         if x!=None:
-            self.x=int(x)
+            self.xDim=int(x)
         if y!=None:
-            self.y=int(y)
-        print(self.x,self,y)
+            self.yDim=int(y)
     def start(self):
-        sm.add_widget(SettingsScreen(name='game',w=self.y,h=self.x))
-        self.manager.current = 'game'
+        if self.test:
+            sm.remove_widget(self.settingsScreen)
+        self.test=1
+        self.settingsScreen=SettingsScreen(name='game',w=self.yDim,h=self.xDim)
+        sm.add_widget(self.settingsScreen)
+        self.manager.current='game'
+
 
 
 class SettingsScreen(Screen):
@@ -43,6 +51,7 @@ b=MenuScreen(name="menu")
 #b.add_widget(width)
 #b.add_widget(height)
 sm.add_widget(b)
+sm.current='menu'
 class TestApp(App):
 
     def build(self):
