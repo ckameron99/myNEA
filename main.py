@@ -25,7 +25,7 @@ class MenuScreen(Screen):
             self.yDim=int(y)
     def startNByN(self):
         self.nByN=NByN(name='game',w=self.yDim,h=self.xDim)
-        sm.add_widget(self.nByN)
+        self.manager.add_widget(self.nByN)
         self.manager.current='game'
 
 class NByN(Screen):
@@ -45,7 +45,7 @@ class NByN(Screen):
                 self.grid.add_widget(self.b[-1][-1])
     def makeMove(self,instance):
         self.board.placeMove((instance.xLoc,instance.yLoc),1)
-        self.board.checkWin()
+        print(self.board.checkWin())
 
 class Tile(Button):
     xLoc=NumericProperty(1)
@@ -63,7 +63,7 @@ class MainApp(App):
 
 def main():
     init()
-    MainApp.run()
+    MainApp().run()
 
 def init():
     pass

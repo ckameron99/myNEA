@@ -1,3 +1,19 @@
+<MenuScreen>:
+    BoxLayout:
+        size_hint: None, None
+        size: min(root.width - 100, 300), 100
+        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+        Button:
+            text: 'Start'
+            on_press: root.startNByN()
+        TextInput:
+            text: '3'
+            multiline: False
+            on_text_validate: root.update(self.text,None)
+        TextInput:
+            text: '3'
+            multiline: False
+            on_text_validate: root.update(None,self.text)
 
 <NByN>:
     grid: Grid

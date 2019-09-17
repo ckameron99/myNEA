@@ -8,7 +8,7 @@ class MCTS:
         pass
 
 
-class LookupTable(self):
+class LookupTable:
     def __init__(self):
         pass
 
@@ -16,6 +16,3 @@ class LookupTable(self):
 class MatchBox:
     def __init__(self):
         pass
-
-
-        
