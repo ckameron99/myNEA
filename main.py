@@ -9,6 +9,8 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
 from kivy.properties import ObjectProperty,NumericProperty
 
 Builder.load_file("main.kv")
@@ -47,7 +49,11 @@ class NByN(Screen):
         if self.board.cells[instance.xLoc][instance.yLoc]=="0.0":
             self.board.placeMove((instance.xLoc,instance.yLoc),self.board.players[self.board.currentPlayerNum].value)
             instance.text=str(self.board.players[self.board.currentPlayerNum].value)
-            print(self.board.checkWin(value=self.board.players[self.board.currentPlayerNum].value,nInARow=3))
+            if self.board.checkWin(value=self.board.players[self.board.currentPlayerNum].value,nInARow=min(self.board.sizes)):
+                popup = Popup(title='Winner!',
+                content=Label(text="{} has won the game!".format(self.board.symbols[self.board.currentPlayerNum])),
+                size_hint=(None, None), size=(400, 400))
+                popup.open()
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
 
 class Tile(Button):

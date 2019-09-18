@@ -6,9 +6,9 @@ class Board:
         self.dimensions=len(dimensions)
         self.sizes=dimensions
         self.players=[]
-        symbols=["X","O","V","P"]
+        self.symbols=["X","O","V","P"]
         for i in range(numPlayers):
-            self.players.append(Player(self,symbols[i]))
+            self.players.append(Player(self,self.symbols[i]))
         self.currentPlayerNum=0
 
     def __repr__(self):
