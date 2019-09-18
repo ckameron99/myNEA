@@ -2,9 +2,14 @@ import numpy, itertools
 class Board:
     def __init__(self,dimensions=[3,3],numPlayers=2):
         self.cells=numpy.zeros(dimensions)
+        self.cells=self.cells.astype("U")
         self.dimensions=len(dimensions)
         self.sizes=dimensions
         self.players=[]
+        symbols=["X","O","V","P"]
+        for i in range(numPlayers):
+            self.players.append(Player(self,symbols[i]))
+        self.currentPlayerNum=0
 
     def __repr__(self):
         return self.cells.__repr__()

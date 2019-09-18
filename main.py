@@ -44,8 +44,10 @@ class NByN(Screen):
                 self.b[-1][-1].bind(on_press=self.makeMove)
                 self.grid.add_widget(self.b[-1][-1])
     def makeMove(self,instance):
-        self.board.placeMove((instance.xLoc,instance.yLoc),1)
-        print(self.board.checkWin())
+        self.board.placeMove((instance.xLoc,instance.yLoc),self.board.players[self.board.currentPlayerNum].value)
+        instance.text=str(self.board.players[self.board.currentPlayerNum].value)
+        print(self.board.checkWin(value=self.board.players[self.board.currentPlayerNum].value,nInARow=3))
+        self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
 
 class Tile(Button):
     xLoc=NumericProperty(1)
