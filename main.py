@@ -37,6 +37,7 @@ class NByN(Screen):
     def __init__(self,w,h,**kwargs):
         self.b=[]
         self.w=w
+        self.ai=aiAlgorithms.Random()
         self.board=Board(dimensions=[w,h])
         super(NByN,self).__init__(**kwargs)
         for y in range(h):
@@ -54,6 +55,9 @@ class NByN(Screen):
                 content=Label(text="{} has won the game!".format(self.board.symbols[self.board.currentPlayerNum])),
                 size_hint=(None, None), size=(400, 400))
                 popup.open()
+            self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
+            print(self.ai.getMove(self.board))
+            self.board.placeMove(self.ai.getMove(self.board),self.board.players[self.board.currentPlayerNum].value)
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
 
 class Tile(Button):

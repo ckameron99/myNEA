@@ -34,17 +34,7 @@ class Board:
         iterable=numpy.nditer(self.cells,flags=['multi_index'])
         return any(checkWinCell(nInARow,iterable.multi_index,value) for cell in iterable if cell==value)
 
-
 class Player:
     def __init__(self,board,value):
         self.board=board
         self.value=value
-
-    def makeMove(self,coordinates):
-        if self.board.cells.item(coordinates)==0:
-            self.board.placeMove(coordinates,self.value)
-        else:
-            self.invalidMove("Cell already taken")
-
-    def invalidMove(self, error):
-        raise NotImplementedError(error)
