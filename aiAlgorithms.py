@@ -29,7 +29,7 @@ class MiniMax:
                     score[i]=index[i]
 
             if player==self.COMPUTER and score[-1]>best[-1]:
-                best=score
+                best=scoreu
             elif player==self.HUMAN and score[-1]<best[-1]:
                 best=score
         return best
