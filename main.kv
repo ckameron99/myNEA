@@ -5,7 +5,7 @@
         pos_hint: {"center_x": 0.5, "center_y": 0.5}
         Button:
             text: 'Start'
-            on_press: root.start()
+            on_press: root.startNByN()
         TextInput:
             text: '3'
             multiline: False
@@ -15,7 +15,7 @@
             multiline: False
             on_text_validate: root.update(None,self.text)
 
-<SettingsScreen>:
+<NByN>:
     grid: Grid
     GridLayout:
         id: Grid
@@ -23,8 +23,6 @@
         size: max(min(root.width,root.height)/3*2,200),max(min(root.width,root.height)/3*2,200)
         pos_hint: {"center_x":0.5, "center_y":0.5}
         cols: root.getw()
-
-
 
     BoxLayout:
         size_hint: None,None

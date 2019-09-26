@@ -2,9 +2,14 @@ import numpy, itertools
 class Board:
     def __init__(self,dimensions=[3,3],numPlayers=2):
         self.cells=numpy.zeros(dimensions)
+        self.cells=self.cells.astype("U")
         self.dimensions=len(dimensions)
         self.sizes=dimensions
         self.players=[]
+        self.symbols=["X","O","V","P"]
+        for i in range(numPlayers):
+            self.players.append(Player(self,self.symbols[i]))
+        self.currentPlayerNum=0
 
     def __repr__(self):
         return self.cells.__repr__()
@@ -29,17 +34,7 @@ class Board:
         iterable=numpy.nditer(self.cells,flags=['multi_index'])
         return any(checkWinCell(nInARow,iterable.multi_index,value) for cell in iterable if cell==value)
 
-
 class Player:
     def __init__(self,board,value):
         self.board=board
         self.value=value
-
-    def makeMove(self,coordinates):
-        if self.board.cells.item(coordinates)==0:
-            self.board.placeMove(coordinates,self.value)
-        else:
-            self.invalidMove("Cell already taken")
-
-    def invalidMove(self, error):
-        raise NotImplementedError(error)

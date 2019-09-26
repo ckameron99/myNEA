@@ -1,4 +1,7 @@
-from math import inf as infinity
+import random
+import functools
+import operator
+from math import infinity as inf
 class MiniMax:
     def __init__(self):
         self.HUMAN=-1
@@ -34,13 +37,15 @@ class MiniMax:
                 best=score
         return best
 
+class ABPMM(MiniMax):
+    pass
 
 class MCTS:
     def __init__(self):
         pass
 
 
-class LookupTable(self):
+class LookupTable:
     def __init__(self):
         pass
 
