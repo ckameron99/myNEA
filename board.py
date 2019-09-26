@@ -12,11 +12,11 @@ class Board:
     def placeMove(self,coordinates,value):
         self.cells.itemset(coordinates,value) # coordinates has to be passed as a tuple
 
-    def checkWin(self, nInARow=3, value=1):
+    def checkWin(self, nInARow=3, value=1,cells=self.cells):
         def checkWinAdj(nInARow,coordinates,value,adjCoord):
             direction=numpy.array(adjCoord)-numpy.array(coordinates)
             if min(numpy.array(coordinates)+(nInARow-1)*direction)>=0 and all(numpy.array(coordinates)+(nInARow-1)*direction<self.sizes):
-                return all([self.cells[tuple(numpy.array(coordinates)+dist*numpy.array(direction))]==value for dist in range(nInARow)])
+                return all([cells[tuple(numpy.array(coordinates)+dist*numpy.array(direction))]==value for dist in range(nInARow)])
 
         def checkWinCell(nInARow,coordinates,value):
             pos=[[max(0,d-1),d,min(d+1,self.sizes[dimension]-1)] for dimension,d in enumerate(coordinates)]
