@@ -3,6 +3,7 @@ from board import Board
 from scoreboard import Scoreboard
 from ai import AI
 import aiAlgorithms
+import numpy
 
 from kivy.app import App
 from kivy.lang import Builder
@@ -37,7 +38,7 @@ class NByN(Screen):
     def __init__(self,w,h,**kwargs):
         self.b=[]
         self.w=w
-        self.ai=aiAlgorithms.Random()
+        self.ai=aiAlgorithms.MiniMax()
         self.board=Board(dimensions=[w,h])
         super(NByN,self).__init__(**kwargs)
         for y in range(h):
@@ -50,14 +51,17 @@ class NByN(Screen):
         if self.board.cells[instance.xLoc][instance.yLoc]=="0.0":
             self.board.placeMove((instance.xLoc,instance.yLoc),self.board.players[self.board.currentPlayerNum].value)
             instance.text=str(self.board.players[self.board.currentPlayerNum].value)
-            if self.board.checkWin(value=self.board.players[self.board.currentPlayerNum].value,nInARow=min(self.board.sizes)):
+            if self.board.checkWin(cells=self.board.cells,value=self.board.players[self.board.currentPlayerNum].value,nInARow=min(self.board.sizes)):
                 popup = Popup(title='Winner!',
                 content=Label(text="{} has won the game!".format(self.board.symbols[self.board.currentPlayerNum])),
                 size_hint=(None, None), size=(400, 400))
                 popup.open()
+                return True
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
-            print(self.ai.getMove(self.board))
-            self.board.placeMove(self.ai.getMove(self.board),self.board.players[self.board.currentPlayerNum].value)
+            move=self.ai.getMove(self.board,self.board.currentPlayerNum)
+            location=tuple(move[:-1])
+            self.board.placeMove(location,self.board.players[self.board.currentPlayerNum].value)
+            self.b[location[1]][location[0]].text=str(self.board.players[self.board.currentPlayerNum].value)
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
 
 class Tile(Button):
