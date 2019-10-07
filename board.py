@@ -33,7 +33,7 @@ class Board:
             surroundingCoordinates.remove(list(coordinates))
             return any([checkWinAdj(nInARow,coordinates,value,adjCoord) for adjCoord in surroundingCoordinates])
 
-        iterable=numpy.nditer(self.cells,flags=['multi_index'])
+        iterable=numpy.nditer(cells,flags=['multi_index'])
         return any(checkWinCell(nInARow,iterable.multi_index,value) for cell in iterable if cell==value)
 
 class Player:

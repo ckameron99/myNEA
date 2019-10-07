@@ -59,7 +59,8 @@ class NByN(Screen):
                 return True
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
             move=self.ai.getMove(self.board,self.board.currentPlayerNum)
-            location=tuple(move[:-1])
+            print(move)
+            location=move
             self.board.placeMove(location,self.board.players[self.board.currentPlayerNum].value)
             self.b[location[1]][location[0]].text=str(self.board.players[self.board.currentPlayerNum].value)
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)

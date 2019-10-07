@@ -50,35 +50,33 @@ class MiniMax:
         bestMove=None
         boardCells=board.cells.copy()
         for index, value in numpy.ndenumerate(boardCells):
-            print(index)
             if boardCells[index]=="0.0":
                 boardCells[index]="O"
-                value=self.minimax(board,boardCells,maxDepth,False)
+                value=self.minimax(board,boardCells,maxDepth,True)
+                print(index,value)
                 boardCells[index]="0.0"
                 if value>bestMoveValue:
                     bestMove=index
-                    print(bestMove)
+                    bestMoveValue=value
         return bestMove
     def minimax(self,board,boardCells,depth,isPlayerMaximised):
         #print(boardCells,depth)
         for player in board.players:
-            print(player.value,boardCells,depth)
-            if input("contine?")!="":
+            #print(player.value,boardCells,depth)
+            '''if input("contine?")!="" and f:
                 while True:
-                    exec(input())
+                    exec(input())'''
             if board.checkWin(cells=boardCells,value=player.value):
-                print("won")
                 if player.value=="X":
                     return -1
                 else:
                     return 1
-        if depth==0:
-            return 0
+            #return 0
         if isPlayerMaximised:
             bestValue=-inf
             for index, value in numpy.ndenumerate(boardCells):
                 if boardCells[index]=="0.0":
-                    boardCells[index]="O"
+                    boardCells[index]="X"
                     value=self.minimax(board,boardCells,depth-1,False)
                     boardCells[index]="0.0"
                     bestValue=max(value,bestValue)
@@ -88,7 +86,7 @@ class MiniMax:
             bestValue=inf
             for index, value in numpy.ndenumerate(boardCells):
                 if boardCells[index]=="0.0":
-                    boardCells[index]="X"
+                    boardCells[index]="O"
                     value=self.minimax(board,boardCells,depth-1,True)
                     boardCells[index]="0.0"
                     bestValue=min(value,bestValue)
