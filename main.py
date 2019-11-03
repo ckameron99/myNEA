@@ -38,8 +38,8 @@ class NByN(Screen):
     def __init__(self,w,h,**kwargs):
         self.b=[]
         self.w=w
-        self.ai=aiAlgorithms.MiniMax()
         self.board=Board(dimensions=[w,h])
+        self.ai=aiAlgorithms.MiniMax(self.board)
         super(NByN,self).__init__(**kwargs)
         for y in range(h):
             self.b.append([])
@@ -58,7 +58,7 @@ class NByN(Screen):
                 popup.open()
                 return True
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
-            move=self.ai.getMove(self.board,self.board.currentPlayerNum)
+            move=self.ai.getMove(self.board.currentPlayerNum)
             print(move)
             location=move
             self.board.placeMove(location,self.board.players[self.board.currentPlayerNum].value)
