@@ -39,7 +39,7 @@ class NByN(Screen):
         self.b=[]
         self.w=w
         self.board=Board(dimensions=[w,h])
-        self.ai=aiAlgorithms.MiniMax(self.board)
+        self.ai=aiAlgorithms.ABPMM(self.board)
         super(NByN,self).__init__(**kwargs)
         for y in range(h):
             self.b.append([])
