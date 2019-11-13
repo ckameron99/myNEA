@@ -38,6 +38,7 @@ class NByN(Screen):
     def __init__(self,w,h,**kwargs):
         self.b=[]
         self.w=w
+        self.winner=None
         self.board=Board(dimensions=[w,h])
         self.ai=aiAlgorithms.ABPMM(self.board)
         super(NByN,self).__init__(**kwargs)
@@ -52,6 +53,7 @@ class NByN(Screen):
             self.board.placeMove((instance.xLoc,instance.yLoc),self.board.players[self.board.currentPlayerNum].value)
             instance.text=str(self.board.players[self.board.currentPlayerNum].value)
             if self.board.checkWin(cells=self.board.cells,value=self.board.players[self.board.currentPlayerNum].value,nInARow=min(self.board.sizes)):
+                self.winner=self.board.currentPlayerNum
                 popup = Popup(title='Winner!',
                 content=Label(text="{} has won the game!".format(self.board.symbols[self.board.currentPlayerNum])),
                 size_hint=(None, None), size=(400, 400))
@@ -65,9 +67,32 @@ class NByN(Screen):
             self.b[location[1]][location[0]].text=str(self.board.players[self.board.currentPlayerNum].value)
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
 
+
+class UltimateTicTacToe(NByN):
+    def __init__(self,w,h,**kwargs):
+        self.b=[]
+        self.w=w
+        self.mainBoard=Board(dimensions=[w,h])
+        self.ai=aiAlgorithms.MCTS(self.board)
+        super(NByN,self).__init__(**kwargs)
+        for y in range(h):
+            self.b.append([])
+            for x in range(w):
+                self.b[-1].append(NByNTile(text="".format(x,y),xLoc=x,yLoc=y))
+                self.b[-1][-1].bind(on_press=self.makeMove)
+                self.grid.add_widget(self.b[-1][-1])
+    
+
+
 class Tile(Button):
     xLoc=NumericProperty(1)
     yLoc=NumericProperty(1)
+
+class NByNTile(Button):
+    self.tile=NByN(3,3)
+    self.tile.ai=None
+    def getState(self):
+        return self.tile.winner
 
 class MainApp(App):
     def __init__(self):
