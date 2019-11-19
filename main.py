@@ -39,7 +39,7 @@ class NByN(Screen):
         self.b=[]
         self.w=w
         self.board=Board(dimensions=[w,h])
-        self.ai=aiAlgorithms.ABPMM(self.board)
+        self.ai=aiAlgorithms.MiniMax(self.board)
         super(NByN,self).__init__(**kwargs)
         for y in range(h):
             self.b.append([])
@@ -47,6 +47,7 @@ class NByN(Screen):
                 self.b[-1].append(Tile(text="".format(x,y),xLoc=x,yLoc=y))
                 self.b[-1][-1].bind(on_press=self.makeMove)
                 self.grid.add_widget(self.b[-1][-1])
+
     def makeMove(self,instance):
         if self.board.cells[instance.xLoc][instance.yLoc]=="0.0":
             self.board.placeMove((instance.xLoc,instance.yLoc),self.board.players[self.board.currentPlayerNum].value)
