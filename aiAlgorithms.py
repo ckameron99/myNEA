@@ -15,7 +15,6 @@ class NaiveMiniMax:
             if self.board.cells[index]=="0.0":
                 maxDepth+=1
         self.maxDepth=maxDepth
-        print(maxDepth)
         self.playerIndex=playerIndex
         bestMoveValue,bestMoveLocation=-inf,None
         for index,value in numpy.ndenumerate(self.board.cells):
@@ -23,7 +22,6 @@ class NaiveMiniMax:
                 self.board.cells[index]=self.board.players[self.playerIndex].value
                 val=self.minimax(maxDepth,(self.playerIndex+1)%len(self.board.players))
                 self.board.cells[index]="0.0"
-                print(val)
                 if val>=bestMoveValue:
                     bestMoveValue=val
                     bestMoveLocation=index
@@ -37,8 +35,6 @@ class NaiveMiniMax:
                     return 1
                 else:
                     return -1
-                    print(board.cells)
-                    input()
         if depth==0:
             return 0
         if playerIndex==self.playerIndex:
@@ -77,44 +73,75 @@ class MiniMax:
         for index,value in numpy.ndenumerate(self.board.cells):
             if self.board.cells[index]=="0.0":
                 self.board.cells[index]=self.board.players[self.playerIndex].value
-                val=self.minimax(maxDepth,(self.playerIndex+1)%len(self.board.players))
+                val,moveDepth=self.minimax(maxDepth,(self.playerIndex+1)%len(self.board.players))
                 self.board.cells[index]="0.0"
-                print(val)
                 if val>=bestMoveValue:
-                    bestMoveValue=val
-                    bestMoveLocation=index
-        return bestMoveLocation
+                    if val==-1 or val == 0:
+                        if moveDepth>=self.loseMoveDepth:
+                            self.bestMoveValue=val
+                            self.bestMoveLocation=index
+                            self.loseMoveDepth=moveDepth
+                    elif val==1:
+                        if moveDepth<self.winMoveDepth:
+                            self.bestMoveValue=val
+                            self.bestMoveLocation=index
+                            self.winMoveDepth=moveDepth
+        return self.bestMoveLocation
 
 
     def minimax(self,depth,playerIndex):
+        winMoveDepth=self.maxDepth
+        loseMoveDepth=0
         for player in self.board.players:
             if self.board.checkWin(value=self.board.players[playerIndex].value):
                 if playerIndex==self.playerIndex:
-                    return 1
+                    return 1,0
                 else:
-                    return -1
-                    print(board.cells)
-                    input()
+                    return -1,0
         if depth==0:
-            return 0
+            return 0,0
         if playerIndex==self.playerIndex:
             bestMoveValue=-inf
             for index,value in numpy.ndenumerate(self.board.cells):
                 if self.board.cells[index]=="0.0":
                     self.board.cells[index]=self.board.players[playerIndex].value
-                    val=self.minimax(depth-1,(playerIndex+1)%len(self.board.players))
+                    val,moveDepth=self.minimax(depth-1,(playerIndex+1)%len(self.board.players))
                     self.board.cells[index]="0.0"
-                    bestMoveValue=max(val,bestMoveValue)
+                    if val>=bestMoveValue:
+                        if val==-1 or val == 0:
+                            if moveDepth>=loseMoveDepth:
+                                bestMoveValue=val
+                                bestMoveLocation=index
+                                loseMoveDepth=moveDepth
+                                bestMoveDepth=loseMoveDepth
+                        elif val==1:
+                            if moveDepth<=winMoveDepth:
+                                bestMoveValue=val
+                                bestMoveLocation=index
+                                winMoveDepth=moveDepth
+                                bestMoveDepth=winMoveDepth
         else:
             bestMoveValue=inf
             for index,value in numpy.ndenumerate(self.board.cells):
                 if self.board.cells[index]=="0.0":
                     self.board.cells[index]=self.board.players[playerIndex].value
-                    val=self.minimax(depth-1,(playerIndex+1)%len(self.board.players))
+                    val,moveDepth=self.minimax(depth-1,(playerIndex+1)%len(self.board.players))
                     self.board.cells[index]="0.0"
-                    bestMoveValue=min(val,bestMoveValue)
+                    if val<=bestMoveValue:
+                        if val==1 or val == 0:
+                            if moveDepth>=loseMoveDepth:
+                                bestMoveValue=val
+                                bestMoveLocation=index
+                                loseMoveDepth=moveDepth
+                                bestMoveDepth=loseMoveDepth
+                        elif val==-1:
+                            if moveDepth<=winMoveDepth:
+                                bestMoveValue=val
+                                bestMoveLocation=index
+                                winMoveDepth=moveDepth
+                                bestMoveDepth=winMoveDepth
         #print(depth,val,self.board.cells,"\n")
-        return bestMoveValue
+        return bestMoveValue,bestMoveDepth+1
 
 class NABPMM:
     def __init__(self,board):
@@ -126,7 +153,6 @@ class NABPMM:
             if self.board.cells[index]=="0.0":
                 maxDepth+=1
         self.maxDepth=maxDepth
-        print(maxDepth)
         self.playerIndex=playerIndex
         bestMoveValue,bestMoveLocation=-inf,None
         for index,value in numpy.ndenumerate(self.board.cells):
@@ -134,7 +160,6 @@ class NABPMM:
                 self.board.cells[index]=self.board.players[self.playerIndex].value
                 val=self.abpmm(maxDepth,(self.playerIndex+1)%len(self.board.players),-inf,inf)
                 self.board.cells[index]="0.0"
-                print(val)
                 if val>=bestMoveValue:
                     bestMoveValue=val
                     bestMoveLocation=index
@@ -148,8 +173,6 @@ class NABPMM:
                     return 1
                 else:
                     return -1
-                    print(board.cells)
-                    input()
         if depth==0:
             return 0
         if playerIndex==self.playerIndex:
