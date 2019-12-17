@@ -27,7 +27,7 @@ class MenuScreen(Screen):
         if y!=None:
             self.yDim=int(y)
     def startNByN(self):
-        self.nByN=NByN(name='game',w=self.yDim,h=self.xDim)
+        self.nByN=UltimateTicTacToe(name='game',w=self.yDim,h=self.xDim)
         self.manager.add_widget(self.nByN)
         self.manager.current='game'
 
@@ -71,23 +71,22 @@ class NByN(Screen):
 class UltimateTicTacToe(NByN):
     grid=ObjectProperty(None)
     def __init__(self,w=3,h=3,**kwargs):
+        self.w=9
         self.mainBoard=Board(dimensions=[w,h])
         self.subBoards=numpy.ndarray((3,3))
-        self.ai=aiAlgorithms.MCTS(self.board)
+        #self.ai=aiAlgorithms.MCTS(self.board)
         super(NByN,self).__init__(**kwargs)
         for cellNum in range(81):
-            mainBoardX=cellNum//27
-            mainBoardY=(cellNum%27)//9
-            subBoardX=(cellNum%9)//3
-            subBoardY=cellNum%3
+            mainBoardY=cellNum//27
+            subBoardY=(cellNum%27)//9
+            mainBoardX=(cellNum%9)//3
+            subBoardX=cellNum%3
             tile=UltimateTile(text="",mainBoardX=mainBoardX,mainBoardY=mainBoardY,subBoardX=subBoardX,subBoardY=subBoardY)
             tile.bind(on_press=self.makeMove)
             self.grid.add_widget(tile)
 
     def makeMove(self,instance):
         pass
-
-
 
 
 class Tile(Button):
