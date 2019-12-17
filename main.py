@@ -4,7 +4,6 @@ from scoreboard import Scoreboard
 from ai import AI
 import aiAlgorithms
 import numpy
-
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -13,8 +12,9 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.properties import ObjectProperty,NumericProperty
-
 Builder.load_file("main.kv")
+
+
 
 class MenuScreen(Screen):
     def __init__(self,**kwargs):
@@ -45,7 +45,7 @@ class NByN(Screen):
         for y in range(h):
             self.b.append([])
             for x in range(w):
-                self.b[-1].append(Tile(text="".format(x,y),xLoc=x,yLoc=y))
+                self.b[-1].append(Tile(text="",xLoc=x,yLoc=y))
                 self.b[-1][-1].bind(on_press=self.makeMove)
                 self.grid.add_widget(self.b[-1][-1])
     def makeMove(self,instance):
@@ -69,30 +69,36 @@ class NByN(Screen):
 
 
 class UltimateTicTacToe(NByN):
-    def __init__(self,w,h,**kwargs):
-        self.b=[]
-        self.w=w
+    grid=ObjectProperty(None)
+    def __init__(self,w=3,h=3,**kwargs):
         self.mainBoard=Board(dimensions=[w,h])
+        self.subBoards=numpy.ndarray((3,3))
         self.ai=aiAlgorithms.MCTS(self.board)
         super(NByN,self).__init__(**kwargs)
-        for y in range(h):
-            self.b.append([])
-            for x in range(w):
-                self.b[-1].append(NByNTile(text="".format(x,y),xLoc=x,yLoc=y))
-                self.b[-1][-1].bind(on_press=self.makeMove)
-                self.grid.add_widget(self.b[-1][-1])
-    
+        for cellNum in range(81):
+            mainBoardX=cellNum//27
+            mainBoardY=(cellNum%27)//9
+            subBoardX=(cellNum%9)//3
+            subBoardY=cellNum%3
+            tile=UltimateTile(text="",mainBoardX=mainBoardX,mainBoardY=mainBoardY,subBoardX=subBoardX,subBoardY=subBoardY)
+            tile.bind(on_press=self.makeMove)
+            self.grid.add_widget(tile)
+
+    def makeMove(self,instance):
+        pass
+
+
 
 
 class Tile(Button):
     xLoc=NumericProperty(1)
     yLoc=NumericProperty(1)
 
-class NByNTile(Button):
-    self.tile=NByN(3,3)
-    self.tile.ai=None
-    def getState(self):
-        return self.tile.winner
+class UltimateTile(Button):
+    mainBoardX=NumericProperty(1)
+    mainBoardY=NumericProperty(1)
+    subBoardX=NumericProperty(1)
+    subBoardY=NumericProperty(1)
 
 class MainApp(App):
     def __init__(self):
@@ -105,11 +111,7 @@ class MainApp(App):
         return sm
 
 def main():
-    init()
     MainApp().run()
-
-def init():
-    pass
 
 if __name__=="__main__":
     main()

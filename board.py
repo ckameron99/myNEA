@@ -10,12 +10,19 @@ class Board:
         for i in range(numPlayers):
             self.players.append(Player(self,self.symbols[i]))
         self.currentPlayerNum=0
+        self.winnerIndex=-1
 
     def __repr__(self):
         return self.cells.__repr__()
 
+    def getWinner(self):
+        return self.winnerIndex
+
     def placeMove(self,coordinates,value):
-        self.cells.itemset(coordinates,value) # coordinates has to be passed as a tuple
+        if self.winnerIndex==-1:
+            self.cells.itemset(coordinates,value) # coordinates has to be passed as a tuple
+            return True
+        return False
 
     def checkWin(self, nInARow=3, value=1,cells=None):
         if cells is None:
@@ -34,7 +41,10 @@ class Board:
             return any([checkWinAdj(nInARow,coordinates,value,adjCoord) for adjCoord in surroundingCoordinates])
 
         iterable=numpy.nditer(cells,flags=['multi_index'])
-        return any(checkWinCell(nInARow,iterable.multi_index,value) for cell in iterable if cell==value)
+        if any(checkWinCell(nInARow,iterable.multi_index,value) for cell in iterable if cell==value):
+            self.winnerIndex=self.symbols.index(value)
+            return True
+        return False
 
 class Player:
     def __init__(self,board,value):
