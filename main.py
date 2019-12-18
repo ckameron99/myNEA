@@ -100,7 +100,7 @@ class UltimateTicTacToe(NByN):
 class QuantumTicTacToe(NByN):
     grid=ObjectProperty(None)
 
-    def seq():
+    def seq(self):
         id=0
         while 1:
             yield id
@@ -109,10 +109,11 @@ class QuantumTicTacToe(NByN):
     def __init__(self,w=3,h=3,**kwargs):
         self.w=w
         self.collapsedBoard=Board(dimensions=[3,3])
-        self.superPositionBoard=numpy.ndarray((3,3),type=numpy.dtype(self.QuantumTile))
+        self.superPositionBoard=numpy.ndarray((3,3),dtype=numpy.dtype(self.QuantumTile))
         gen=self.seq()
         for index,x in numpy.ndenumerate(self.superPositionBoard):
             self.superPositionBoard[index]=self.QuantumTile(next(gen))
+        super(NByN,self).__init__(**kwargs)
         for y in range(3):
             for x in range(3):
                 tile=Tile(text="",xLoc=x,yLoc=y)
