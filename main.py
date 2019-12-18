@@ -73,7 +73,9 @@ class UltimateTicTacToe(NByN):
     def __init__(self,w=3,h=3,**kwargs):
         self.w=9
         self.mainBoard=Board(dimensions=[w,h])
-        self.subBoards=numpy.ndarray((3,3))
+        self.subBoards=numpy.ndarray((3,3),dtype=numpy.dtype(Board))
+        for index,x in numpy.ndenumerate(self.subBoards):
+            self.subBoards[index]=Board(dimensions=[3,3])
         #self.ai=aiAlgorithms.MCTS(self.board)
         super(NByN,self).__init__(**kwargs)
         for cellNum in range(81):
@@ -86,7 +88,14 @@ class UltimateTicTacToe(NByN):
             self.grid.add_widget(tile)
 
     def makeMove(self,instance):
-        pass
+        if self.subBoards[instance.mainBoardX][instance.mainBoardY].cells[instance.subBoardX][instance.subBoardY]=="0.0" and self.subBoards[instance.mainBoardX][instance.mainBoardY].winnerIndex==-1:
+            instance.text=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)
+            self.subBoards[instance.mainBoardX][instance.mainBoardY].placeMove((instance.subBoardX,instance.subBoardY),str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value))
+            if self.subBoards[instance.mainBoardX][instance.mainBoardY].checkWin(value=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)):
+                self.mainBoard.placeMove((instance.mainBoardX,instance.mainBoardY),str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value))
+                if self.mainBoard.checkWin(value=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)):
+                    print("Winner!")
+            self.mainBoard.currentPlayerNum=(self.mainBoard.currentPlayerNum+1)%len(self.mainBoard.players)
 
 
 class Tile(Button):

@@ -30,7 +30,10 @@ class Board:
         def checkWinAdj(nInARow,coordinates,value,adjCoord):
             direction=numpy.array(adjCoord)-numpy.array(coordinates)
             if min(numpy.array(coordinates)+(nInARow-1)*direction)>=0 and all(numpy.array(coordinates)+(nInARow-1)*direction<self.sizes):
-                return all([cells[tuple(numpy.array(coordinates)+dist*numpy.array(direction))]==value for dist in range(nInARow)])
+                if all([cells[tuple(numpy.array(coordinates)+dist*numpy.array(direction))]==value for dist in range(nInARow)]):
+                    self.winnerIndex=self.symbols.index(value)
+                    return True
+                return False
 
         def checkWinCell(nInARow,coordinates,value):
             pos=[[max(0,d-1),d,min(d+1,self.sizes[dimension]-1)] for dimension,d in enumerate(coordinates)]
