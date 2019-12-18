@@ -27,7 +27,7 @@ class MenuScreen(Screen):
         if y!=None:
             self.yDim=int(y)
     def startNByN(self):
-        self.nByN=UltimateTicTacToe(name='game',w=self.yDim,h=self.xDim)
+        self.nByN=QuantumTicTacToe(name='game',w=self.yDim,h=self.xDim)
         self.manager.add_widget(self.nByN)
         self.manager.current='game'
 
@@ -96,6 +96,50 @@ class UltimateTicTacToe(NByN):
                 if self.mainBoard.checkWin(value=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)):
                     print("Winner!")
             self.mainBoard.currentPlayerNum=(self.mainBoard.currentPlayerNum+1)%len(self.mainBoard.players)
+
+class QuantumTicTacToe(NByN):
+    grid=ObjectProperty(None)
+
+    def seq():
+        id=0
+        while 1:
+            yield id
+            id+=1
+
+    def __init__(self,w=3,h=3,**kwargs):
+        self.w=w
+        self.collapsedBoard=Board(dimensions=[3,3])
+        self.superPositionBoard=numpy.ndarray((3,3),type=numpy.dtype(self.QuantumTile))
+        gen=self.seq()
+        for index,x in numpy.ndenumerate(self.superPositionBoard):
+            self.superPositionBoard[index]=self.QuantumTile(next(gen))
+        for y in range(3):
+            for x in range(3):
+                tile=Tile(text="",xLoc=x,yLoc=y)
+                tile.bind(on_press=self.makeMove)
+                self.grid.add_widget(tile)
+
+
+
+    def makeMove(self,instance):
+        instance.text="X"
+
+    class QuantumState:
+        def __init__(self,tile1X,tile1Y,tile2X,tile2Y,value,moveNumber):
+            self.tile1X=tile1X
+            self.tile1Y=tile1Y
+            self.tile2X=tile2X
+            self.tile2Y=tile2Y
+            self.value=value
+            self.moveNumber=moveNumber
+
+
+    class QuantumTile:
+        def __init__(self,id):
+            self.id=id
+            self.quantumStates=[]
+            self.collapsed=False
+            self.classicalState=None
 
 
 class Tile(Button):
