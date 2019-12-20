@@ -108,6 +108,8 @@ class QuantumTicTacToe(NByN):
 
     def __init__(self,w=3,h=3,**kwargs):
         self.w=w
+        self.moveNumber=1
+        self.firstMove=True
         self.collapsedBoard=Board(dimensions=[3,3])
         self.superPositionBoard=numpy.ndarray((3,3),dtype=numpy.dtype(self.QuantumTile))
         gen=self.seq()
@@ -121,18 +123,21 @@ class QuantumTicTacToe(NByN):
                 self.grid.add_widget(tile)
 
 
-
     def makeMove(self,instance):
-        instance.text="X"
-
-    class QuantumState:
-        def __init__(self,tile1X,tile1Y,tile2X,tile2Y,value,moveNumber):
-            self.tile1X=tile1X
-            self.tile1Y=tile1Y
-            self.tile2X=tile2X
-            self.tile2Y=tile2Y
-            self.value=value
-            self.moveNumber=moveNumber
+        if self.collapsedBoard.cells[instance.xLoc][instance.yLoc]=="0.0":
+            if self.firstMove:
+                self.firstMove^=1
+                self.firstMoveX=instance.xLoc
+                self.firstMoveY=instance.yLoc
+                instance.text+="X{}".format(self.moveNumber)
+            else:
+                self.firstMove^=1
+                instance.text+="X{}".format(self.moveNumber)
+                self.moveNumber+=1
+                if self.superPositionBoard[instance.xLoc][instance.yLoc].id!=self.superPositionBoard[self.firstMoveX][self.firstMoveY].id:
+                    self.superPositionBoard[instance.xLoc][instance.yLoc].updateTileId(self.superPositionBoard[self.firstMoveX][self.firstMoveY].id)
+                else:
+                    pass
 
 
     class QuantumTile:
@@ -141,6 +146,12 @@ class QuantumTicTacToe(NByN):
             self.quantumStates=[]
             self.collapsed=False
             self.classicalState=None
+
+        def updateTileId(self,id):
+            self.id=id
+            for tile in self.quantumStates:
+                if tile.id!=id:
+                    tile.updateTileId(id)
 
 
 class Tile(Button):
