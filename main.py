@@ -136,8 +136,10 @@ class QuantumTicTacToe(NByN):
                 self.moveNumber+=1
                 if self.superPositionBoard[instance.xLoc][instance.yLoc].id!=self.superPositionBoard[self.firstMoveX][self.firstMoveY].id:
                     self.superPositionBoard[instance.xLoc][instance.yLoc].updateTileId(self.superPositionBoard[self.firstMoveX][self.firstMoveY].id)
+                    self.superPositionBoard[instance.xLoc][instance.yLoc].quantumStates.append(self.superPositionBoard[self.firstMoveX][self.firstMoveY])
+                    self.superPositionBoard[self.firstMoveX][self.firstMoveY].quantumStates.append(self.superPositionBoard[instance.xLoc][instance.yLoc])
                 else:
-                    pass
+                    print("collapse!")
 
 
     class QuantumTile:
