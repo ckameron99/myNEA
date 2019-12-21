@@ -121,7 +121,7 @@ class QuantumTicTacToe(NByN):
                 tile=Tile(text="",xLoc=x,yLoc=y)
                 tile.bind(on_press=self.makeMove)
                 self.grid.add_widget(tile)
-                self.superPositionBoard.guiTile=tile
+                self.superPositionBoard[x][y].guiTile=tile
 
 
     def makeMove(self,instance):
@@ -134,17 +134,17 @@ class QuantumTicTacToe(NByN):
             else:
                 self.firstMove^=1
                 instance.text+="X{}".format(self.moveNumber)
-                self.moveNumber+=1
                 if self.superPositionBoard[instance.xLoc][instance.yLoc].id!=self.superPositionBoard[self.firstMoveX][self.firstMoveY].id:
                     self.superPositionBoard[instance.xLoc][instance.yLoc].updateTileId(self.superPositionBoard[self.firstMoveX][self.firstMoveY].id)
-                    self.superPositionBoard[instance.xLoc][instance.yLoc].quantumStates[moveNumber]=self.superPositionBoard[self.firstMoveX][self.firstMoveY]
-                    self.superPositionBoard[self.firstMoveX][self.firstMoveY].quantumStates[moveNumber]=self.superPositionBoard[instance.xLoc][instance.yLoc]
+                    self.superPositionBoard[instance.xLoc][instance.yLoc].quantumStates[self.moveNumber]=self.superPositionBoard[self.firstMoveX][self.firstMoveY]
+                    self.superPositionBoard[self.firstMoveX][self.firstMoveY].quantumStates[self.moveNumber]=self.superPositionBoard[instance.xLoc][instance.yLoc]
                 else:
-                    firstMovePrecedence=int(input("would you like your last move to be placed at {},{} or {}{}".format(firstMoveX,firstMoveY,instance.xLoc,instance.yLoc)))
+                    firstMovePrecedence=int(input("would you like your last move to be placed at your first move({},{}), the other move was {}{}.".format(self.firstMoveX,self.firstMoveY,instance.xLoc,instance.yLoc)))
                     if firstMovePrecedence:
-                        self.superPositionBoard[firstMoveX][firstMoveY].collapse(moveNumber)
+                        self.superPositionBoard[self.firstMoveX][self.firstMoveY].collapse(self.moveNumber)
                     else:
-                        self.superPositionBoard[instance.xLoc][instance.yLoc].collapse(moveNumber)
+                        self.superPositionBoard[instance.xLoc][instance.yLoc].collapse(self.moveNumber)
+                self.moveNumber+=1
 
 
     class QuantumTile:
@@ -156,16 +156,16 @@ class QuantumTicTacToe(NByN):
 
         def updateTileId(self,id):
             self.id=id
-            for moveNumber, tile in self.quantumStates:
+            for moveNumber, tile in self.quantumStates.items():
                 if tile.id!=id:
                     tile.updateTileId(id)
 
         def collapse(self,collapsingMoveNumber):
             self.collapsed=True
             self.guiTile.text="X{}".format(collapsingMoveNumber)
-            for moveNumber,tile in self.quantumStates:
-                if moveNumber!=self.collapsingMoveNumber:
-                    if !tile.collapsed:
+            for moveNumber,tile in self.quantumStates.items():
+                if moveNumber!=collapsingMoveNumber:
+                    if not tile.collapsed:
                         tile.collapse(moveNumber)
 
 
