@@ -124,6 +124,23 @@ class QuantumTicTacToe(NByN):
                 self.superPositionBoard[x][y].guiTile=tile
 
 
+    def getFirstMovePrecidence(self):
+        #int(input("would you like your last move to be placed at your first move({},{}), the other move was {}{}.".format(self.firstMoveX,self.firstMoveY,instance.xLoc,instance.yLoc)))
+        firstMove=Button(text="First move")
+        notFirstMove=Button(text="Second move")
+        box=BoxLayout()
+        box.add_widget(firstMove)
+        box.add_widget(notFirstMove)
+        popup=Popup(title="Collapsing menu",content=box,auto_dismiss=False)
+        firstMove.bind(self.true)
+        notFirstMove.bind(self.false)
+
+    def false(self):
+        return False
+
+    def true(self):
+        return True
+
     def makeMove(self,instance):
         if self.collapsedBoard.cells[instance.xLoc][instance.yLoc]=="0.0":
             if self.firstMove:
@@ -139,7 +156,7 @@ class QuantumTicTacToe(NByN):
                     self.superPositionBoard[instance.xLoc][instance.yLoc].quantumStates[self.moveNumber]=self.superPositionBoard[self.firstMoveX][self.firstMoveY]
                     self.superPositionBoard[self.firstMoveX][self.firstMoveY].quantumStates[self.moveNumber]=self.superPositionBoard[instance.xLoc][instance.yLoc]
                 else:
-                    firstMovePrecedence=int(input("would you like your last move to be placed at your first move({},{}), the other move was {}{}.".format(self.firstMoveX,self.firstMoveY,instance.xLoc,instance.yLoc)))
+                    firstMovePrecedence=self.getFirstMovePrecidence()
                     if firstMovePrecedence:
                         self.superPositionBoard[self.firstMoveX][self.firstMoveY].collapse(self.moveNumber)
                     else:
