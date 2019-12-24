@@ -130,10 +130,10 @@ class QuantumTicTacToe(NByN):
                 self.firstMove^=1
                 self.firstMoveX=instance.xLoc
                 self.firstMoveY=instance.yLoc
-                instance.text+="{}{} ".format(self.collapsedBoard.symbols[self.collapsedBoard.currentPlayerNum],self.moveNumber)
+                instance.text+="{}{} ".format(self.collapsedBoard.symbols[self.collapsedBoard.currentPlayerNum],self.moveNumRepr(self.moveNumber))
             else:
                 self.firstMove^=1
-                instance.text+="{}{} ".format(self.collapsedBoard.symbols[self.collapsedBoard.currentPlayerNum],self.moveNumber)
+                instance.text+="{}{} ".format(self.collapsedBoard.symbols[self.collapsedBoard.currentPlayerNum],self.moveNumRepr(self.moveNumber))
                 if self.superPositionBoard[instance.xLoc][instance.yLoc].id!=self.superPositionBoard[self.firstMoveX][self.firstMoveY].id:
                     self.superPositionBoard[instance.xLoc][instance.yLoc].updateTileId(self.superPositionBoard[self.firstMoveX][self.firstMoveY].id)
                     self.superPositionBoard[instance.xLoc][instance.yLoc].quantumStates[self.moveNumber]=self.superPositionBoard[self.firstMoveX][self.firstMoveY]
@@ -145,7 +145,10 @@ class QuantumTicTacToe(NByN):
                     else:
                         self.superPositionBoard[instance.xLoc][instance.yLoc].collapse(self.moveNumber)
                 self.moveNumber+=1
-                self.collapsedBoard.currentPlayerNum=(self.collapsedBoard.currentPlayerNum+1)%len(self.mainBoard.players)
+                self.collapsedBoard.currentPlayerNum=(self.collapsedBoard.currentPlayerNum+1)%len(self.collapsedBoard.players)
+
+    def moveNumRepr(self,num):
+        return (num+1)//len(self.collapsedBoard.players) #converts the move number into the move number of the player
 
 
     class QuantumTile:
@@ -154,6 +157,7 @@ class QuantumTicTacToe(NByN):
             self.quantumStates={}
             self.collapsed=False
             self.guiTile=None
+            self.game=game
 
         def updateTileId(self,id):
             self.id=id
@@ -163,7 +167,7 @@ class QuantumTicTacToe(NByN):
 
         def collapse(self,collapsingMoveNumber):
             self.collapsed=True
-            self.guiTile.text="X{}".format(collapsingMoveNumber)
+            self.guiTile.text="{}{}".format(self.game.collapsedBoard.symbols[(collapsingMoveNumber-1)%len(self.game.collapsedBoard.players)],self.game.moveNumRepr(collapsingMoveNumber))
             for moveNumber,tile in self.quantumStates.items():
                 if moveNumber!=collapsingMoveNumber:
                     if not tile.collapsed:
