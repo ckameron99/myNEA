@@ -117,7 +117,9 @@ class QuantumTicTacToe(NByN):
         self.superPositionBoard=numpy.ndarray((3,3),dtype=numpy.dtype(self.QuantumTile))
         gen=self.seq()
         for index,x in numpy.ndenumerate(self.superPositionBoard):
-            self.superPositionBoard[index]=self.QuantumTile(next(gen),self)
+            xPos=index[1]
+            yPos=index[0]
+            self.superPositionBoard[index]=self.QuantumTile(next(gen),self,xPos,yPos)
         super(NByN,self).__init__(**kwargs)
         for y in range(3):
             for x in range(3):
@@ -176,7 +178,9 @@ class QuantumTicTacToe(NByN):
 
 
     class QuantumTile:
-        def __init__(self,id,game):
+        def __init__(self,id,game,x,y):
+            self.x=x
+            self.y=y
             self.id=id
             self.quantumStates={}
             self.collapsed=False
@@ -196,6 +200,7 @@ class QuantumTicTacToe(NByN):
                 if moveNumber!=collapsingMoveNumber:
                     if not tile.collapsed:
                         tile.collapse(moveNumber)
+            self.game.collapsedBoard.placeMove((self.x,self.y),self.game.collapsedBoard.symbols[(collapsingMoveNumber-1)%len(self.game.collapsedBoard.players)])
 
 
 
