@@ -3,6 +3,7 @@ from board import Board
 from scoreboard import Scoreboard
 from ai import AI
 import aiAlgorithms
+import functools
 import numpy
 from kivy.app import App
 from kivy.lang import Builder
@@ -129,27 +130,6 @@ class QuantumTicTacToe(NByN):
     class DragLabel(DragBehavior,Label):
         pass
 
-    def getFirstMovePrecidence(self):
-        #int(input("would you like your last move to be placed at your first move({},{}), the other move was {}{}.".format(self.firstMoveX,self.firstMoveY,instance.xLoc,instance.yLoc)))
-        firstMove=Button(text="First move")
-        notFirstMove=Button(text="Second move")
-        dragBox=DragLabel()
-        box=BoxLayout()
-        box.add_widget(firstMove)
-        box.add_widget(notFirstMove)
-        box.add_widget(dragBox)
-        self.popup=Popup(title="Collapsing menu",content=box,auto_dismiss=False,size_hint=(None,None),size=(400,400))
-        firstMove.bind(on_press=self.true)
-        notFirstMove.bind(on_press=self.false)
-        self.popup.open()
-
-    def false(self,instance):
-        self.popup.dismiss()
-        return False
-
-    def true(self,instance):
-        self.popup.dismiss()
-        return True
 
     def makeMove(self,instance):
         if self.collapsedBoard.cells[instance.xLoc][instance.yLoc]=="0.0":
@@ -166,16 +146,32 @@ class QuantumTicTacToe(NByN):
                     self.superPositionBoard[instance.xLoc][instance.yLoc].quantumStates[self.moveNumber]=self.superPositionBoard[self.firstMoveX][self.firstMoveY]
                     self.superPositionBoard[self.firstMoveX][self.firstMoveY].quantumStates[self.moveNumber]=self.superPositionBoard[instance.xLoc][instance.yLoc]
                 else:
-                    firstMovePrecedence=self.getFirstMovePrecidence()
-                    if firstMovePrecedence:
-                        self.superPositionBoard[self.firstMoveX][self.firstMoveY].collapse(self.moveNumber)
-                    else:
-                        self.superPositionBoard[instance.xLoc][instance.yLoc].collapse(self.moveNumber)
+                    self.getFirstMovePrecidenceAndCollapse(self.firstMoveX,self.firstMoveY,instance.xLoc,instance.yLoc,self.moveNumber)
                 self.moveNumber+=1
                 self.collapsedBoard.currentPlayerNum=(self.collapsedBoard.currentPlayerNum+1)%len(self.collapsedBoard.players)
 
     def moveNumRepr(self,num):
         return (num+1)//len(self.collapsedBoard.players) #converts the move number into the move number of the player
+
+    def getFirstMovePrecidenceAndCollapse(self,firstMoveX,firstMoveY,secondMoveX,secondMoveY,moveNumber):
+        def firstMoveCollapse(instance):
+            self.superPositionBoard[firstMoveX][firstMoveY].collapse(moveNumber)
+            self.popup.dismiss()
+        def secondMoveCollapse(instance):
+            self.superPositionBoard[secondMoveX][secondMoveY].collapse(moveNumber)
+            self.popup.dismiss()
+
+        firstMove=Button(text="First move")
+        notFirstMove=Button(text="Second move")
+        #dragBox=DragLabel()
+        box=BoxLayout()
+        box.add_widget(firstMove)
+        box.add_widget(notFirstMove)
+        #box.add_widget(dragBox)
+        self.popup=Popup(title="Collapsing menu",content=box,auto_dismiss=False,size_hint=(None,None),size=(400,400))
+        firstMove.bind(on_press=firstMoveCollapse)
+        notFirstMove.bind(on_press=secondMoveCollapse)
+        self.popup.open()
 
 
     class QuantumTile:
@@ -193,6 +189,7 @@ class QuantumTicTacToe(NByN):
                     tile.updateTileId(id)
 
         def collapse(self,collapsingMoveNumber):
+            print(self.guiTile.xLoc,self.guiTile.yLoc,collapsingMoveNumber)
             self.collapsed=True
             self.guiTile.text="{}{}".format(self.game.collapsedBoard.symbols[(collapsingMoveNumber-1)%len(self.game.collapsedBoard.players)],self.game.moveNumRepr(collapsingMoveNumber))
             for moveNumber,tile in self.quantumStates.items():
