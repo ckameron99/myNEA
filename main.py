@@ -151,7 +151,7 @@ class QuantumTicTacToe(NByN):
                     self.getFirstMovePrecidenceAndCollapse(self.firstMoveX,self.firstMoveY,instance.xLoc,instance.yLoc,self.moveNumber)
                 self.moveNumber+=1
                 self.collapsedBoard.currentPlayerNum=(self.collapsedBoard.currentPlayerNum+1)%len(self.collapsedBoard.players)
-                print(self.collapsedBoard)
+
 
     def moveNumRepr(self,num):
         return (num+1)//len(self.collapsedBoard.players) #converts the move number into the move number of the player
@@ -160,9 +160,26 @@ class QuantumTicTacToe(NByN):
         def firstMoveCollapse(instance):
             self.superPositionBoard[firstMoveX][firstMoveY].collapse(moveNumber)
             self.popup.dismiss()
+            checkWins()
         def secondMoveCollapse(instance):
             self.superPositionBoard[secondMoveX][secondMoveY].collapse(moveNumber)
             self.popup.dismiss()
+            checkWins()
+        def checkWins():
+            winners=[]
+            for symbol in self.collapsedBoard.symbols[:len(self.collapsedBoard.players)]:
+                if self.collapsedBoard.checkWin(value=symbol):
+                    winners.append(symbol)
+            if len(winners)==1:
+                popup = Popup(title='Winner!',
+                content=Label(text="{} has won the game!".format(winners[0])),
+                size_hint=(None, None), size=(400, 400))
+                popup.open()
+            elif len(winners)>1:
+                popup = Popup(title='Draw!',
+                content=Label(text="The board was collapsed so that several\npeople have winning moves."),
+                size_hint=(None, None), size=(400, 400))
+                popup.open()
 
         firstMove=Button(text="First move")
         notFirstMove=Button(text="Second move")
