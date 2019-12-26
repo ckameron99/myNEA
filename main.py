@@ -132,7 +132,7 @@ class QuantumTicTacToe(NByN):
 
 
     def makeMove(self,instance):
-        if self.collapsedBoard.cells[instance.xLoc][instance.yLoc]=="0.0":
+        if not self.superPositionBoard[instance.xLoc][instance.yLoc].collapsed:
             if self.firstMove:
                 self.firstMove^=1
                 self.firstMoveX=instance.xLoc
@@ -149,6 +149,7 @@ class QuantumTicTacToe(NByN):
                     self.getFirstMovePrecidenceAndCollapse(self.firstMoveX,self.firstMoveY,instance.xLoc,instance.yLoc,self.moveNumber)
                 self.moveNumber+=1
                 self.collapsedBoard.currentPlayerNum=(self.collapsedBoard.currentPlayerNum+1)%len(self.collapsedBoard.players)
+                print(self.collapsedBoard)
 
     def moveNumRepr(self,num):
         return (num+1)//len(self.collapsedBoard.players) #converts the move number into the move number of the player
@@ -189,7 +190,6 @@ class QuantumTicTacToe(NByN):
                     tile.updateTileId(id)
 
         def collapse(self,collapsingMoveNumber):
-            print(self.guiTile.xLoc,self.guiTile.yLoc,collapsingMoveNumber)
             self.collapsed=True
             self.guiTile.text="{}{}".format(self.game.collapsedBoard.symbols[(collapsingMoveNumber-1)%len(self.game.collapsedBoard.players)],self.game.moveNumRepr(collapsingMoveNumber))
             for moveNumber,tile in self.quantumStates.items():
