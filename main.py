@@ -12,6 +12,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.behaviors import DragBehavior
 from kivy.properties import ObjectProperty,NumericProperty
 Builder.load_file("main.kv")
 
@@ -125,13 +126,18 @@ class QuantumTicTacToe(NByN):
                 self.superPositionBoard[x][y].guiTile=tile
 
 
+    class DragLabel(DragBehavior,Label):
+        pass
+
     def getFirstMovePrecidence(self):
         #int(input("would you like your last move to be placed at your first move({},{}), the other move was {}{}.".format(self.firstMoveX,self.firstMoveY,instance.xLoc,instance.yLoc)))
         firstMove=Button(text="First move")
         notFirstMove=Button(text="Second move")
+        dragBox=DragLabel()
         box=BoxLayout()
         box.add_widget(firstMove)
         box.add_widget(notFirstMove)
+        box.add_widget(dragBox)
         self.popup=Popup(title="Collapsing menu",content=box,auto_dismiss=False,size_hint=(None,None),size=(400,400))
         firstMove.bind(on_press=self.true)
         notFirstMove.bind(on_press=self.false)
