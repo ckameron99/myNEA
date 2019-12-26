@@ -11,6 +11,7 @@ from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
+from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty,NumericProperty
 Builder.load_file("main.kv")
 
@@ -131,14 +132,17 @@ class QuantumTicTacToe(NByN):
         box=BoxLayout()
         box.add_widget(firstMove)
         box.add_widget(notFirstMove)
-        popup=Popup(title="Collapsing menu",content=box,auto_dismiss=False)
-        firstMove.bind(self.true)
-        notFirstMove.bind(self.false)
+        self.popup=Popup(title="Collapsing menu",content=box,auto_dismiss=False,size_hint=(None,None),size=(400,400))
+        firstMove.bind(on_press=self.true)
+        notFirstMove.bind(on_press=self.false)
+        self.popup.open()
 
-    def false(self):
+    def false(self,instance):
+        self.popup.dismiss()
         return False
 
-    def true(self):
+    def true(self,instance):
+        self.popup.dismiss()
         return True
 
     def makeMove(self,instance):
