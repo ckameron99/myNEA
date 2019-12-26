@@ -168,7 +168,7 @@ class QuantumTicTacToe(NByN):
         box.add_widget(firstMove)
         box.add_widget(notFirstMove)
         #box.add_widget(dragBox)
-        self.popup=Popup(title="Collapsing menu",content=box,auto_dismiss=False,size_hint=(None,None),size=(400,400))
+        self.popup=Popup(title="Collapsing menu",content=box,auto_dismiss=False,size_hint=(None,None),size=(300,100),pos_hint={'top':1})
         firstMove.bind(on_press=firstMoveCollapse)
         notFirstMove.bind(on_press=secondMoveCollapse)
         self.popup.open()
