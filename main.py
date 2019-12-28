@@ -24,15 +24,29 @@ class MenuScreen(Screen):
         self.xDim=3
         self.yDim=3
         super(MenuScreen,self).__init__(**kwargs)
+
+
     def update(self,x,y):
         if x!=None:
             self.xDim=int(x)
         if y!=None:
             self.yDim=int(y)
+
     def startNByN(self):
-        self.nByN=QuantumTicTacToe(name='game',w=self.yDim,h=self.xDim)
+        self.nByN=NByN(name='game',w=self.yDim,h=self.xDim)
         self.manager.add_widget(self.nByN)
         self.manager.current='game'
+
+    def startUltimate(self):
+        self.ultimate=UltimateTicTacToe(name='game',w=self.yDim,h=self.xDim)
+        self.manager.add_widget(self.nByN)
+        self.manager.current='game'
+
+    def startQuantum(self):
+        self.quantum=QuantumTicTacToe(name='game',w=self.yDim,h=self.xDim)
+        self.manager.add_widget(self.nByN)
+        self.manager.current='game'
+
 
 class NByN(Screen):
     grid=ObjectProperty(None)
@@ -144,6 +158,8 @@ class QuantumTicTacToe(NByN):
                 if not (instance.xLoc==self.firstMoveX and instance.yLoc==self.firstMoveY):
                     self.firstMove^=1
                     instance.text+="{}{} ".format(self.collapsedBoard.symbols[self.collapsedBoard.currentPlayerNum],self.moveNumRepr(self.moveNumber))
+                    if instance.text.count(" ")%3==0:
+                        instance.text+="\n"
                     if self.superPositionBoard[instance.xLoc][instance.yLoc].id!=self.superPositionBoard[self.firstMoveX][self.firstMoveY].id:
                         self.superPositionBoard[instance.xLoc][instance.yLoc].updateTileId(self.superPositionBoard[self.firstMoveX][self.firstMoveY].id)
                         self.superPositionBoard[instance.xLoc][instance.yLoc].quantumStates[self.moveNumber]=self.superPositionBoard[self.firstMoveX][self.firstMoveY]
@@ -214,6 +230,7 @@ class QuantumTicTacToe(NByN):
         def collapse(self,collapsingMoveNumber):
             self.collapsed=True
             self.guiTile.text="{}{}".format(self.game.collapsedBoard.symbols[(collapsingMoveNumber-1)%len(self.game.collapsedBoard.players)],self.game.moveNumRepr(collapsingMoveNumber))
+            self.guiTile.font_size="45sp"
             for moveNumber,tile in self.quantumStates.items():
                 if moveNumber!=collapsingMoveNumber:
                     if not tile.collapsed:
