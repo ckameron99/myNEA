@@ -49,5 +49,6 @@
         Button:
             text: 'Back to menu'
             on_press:
+                root.manager.transition.direction='right'
                 root.manager.current = 'menu'
                 root.manager.remove_widget(root)
