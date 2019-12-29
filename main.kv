@@ -1,10 +1,11 @@
 <MenuScreen>:
     BoxLayout:
         size_hint: None, None
-        size: min(root.width - 100, 300), 100
-        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+        size: min(root.width - 100, 200), 100
+        pos_hint: {"center_x": 0.5, "center_y": 0.7}
         Button:
             text: 'Start'
+            size_hint: 2,None
             on_press: root.startNByN()
         TextInput:
             text: '3'
@@ -14,6 +15,21 @@
             text: '3'
             multiline: False
             on_text_validate: root.update(None,self.text)
+
+    Button:
+        size_hint: None,None
+        size: 100,100
+        pos_hint: {"center_x":0.25,"center_y":0.7}
+        text: 'Quantum'
+        on_press: root.startQuantum()
+
+    Button:
+        size_hint: None,None
+        size: 100,100
+        pos_hint: {"center_x":0.75,"center_y":0.7}
+        text: 'Ultimate'
+        on_press: root.startUltimate()
+
 
 <NByN>:
     grid: Grid

@@ -39,12 +39,12 @@ class MenuScreen(Screen):
 
     def startUltimate(self):
         self.ultimate=UltimateTicTacToe(name='game',w=self.yDim,h=self.xDim)
-        self.manager.add_widget(self.nByN)
+        self.manager.add_widget(self.ultimate)
         self.manager.current='game'
 
     def startQuantum(self):
         self.quantum=QuantumTicTacToe(name='game',w=self.yDim,h=self.xDim)
-        self.manager.add_widget(self.nByN)
+        self.manager.add_widget(self.quantum)
         self.manager.current='game'
 
 
