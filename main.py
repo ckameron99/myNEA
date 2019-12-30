@@ -25,7 +25,6 @@ class MenuScreen(Screen):
         self.yDim=3
         super(MenuScreen,self).__init__(**kwargs)
 
-
     def update(self,x,y):
         if x!=None:
             self.xDim=int(x)
@@ -53,8 +52,6 @@ class MenuScreen(Screen):
 
 class NByN(Screen):
     grid=ObjectProperty(None)
-    def getw(self):
-        return self.w
     def __init__(self,w,h,**kwargs):
         self.b=[]
         self.w=w
@@ -81,10 +78,8 @@ class NByN(Screen):
                 return True
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
             move=self.ai.getMove(self.board.currentPlayerNum)
-            print(move)
-            location=move
-            self.board.placeMove(location,self.board.players[self.board.currentPlayerNum].value)
-            self.b[location[1]][location[0]].text=str(self.board.players[self.board.currentPlayerNum].value)
+            self.board.placeMove(move,self.board.players[self.board.currentPlayerNum].value)
+            self.b[move[1]][move[0]].text=str(self.board.players[self.board.currentPlayerNum].value)
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
 
 
@@ -112,6 +107,7 @@ class UltimateTicTacToe(NByN):
             instance.text=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)
             self.subBoards[instance.mainBoardX][instance.mainBoardY].placeMove((instance.subBoardX,instance.subBoardY),str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value))
             if self.subBoards[instance.mainBoardX][instance.mainBoardY].checkWin(value=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)):
+                self.subBoards[instance.mainBoardX][instance.mainBoardY].setWinner(str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value))
                 self.mainBoard.placeMove((instance.mainBoardX,instance.mainBoardY),str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value))
                 if self.mainBoard.checkWin(value=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)):
                     print("Winner!")

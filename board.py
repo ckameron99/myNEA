@@ -18,6 +18,9 @@ class Board:
     def getWinner(self):
         return self.winnerIndex
 
+    def setWinner(self,value): #only needs to be used with ultimate tic tac toe
+        self.winnerIndex=self.symbols.index(value)
+
     def placeMove(self,coordinates,value):
         if self.winnerIndex==-1:
             self.cells.itemset(coordinates,value) # coordinates has to be passed as a tuple
@@ -31,7 +34,7 @@ class Board:
             direction=numpy.array(adjCoord)-numpy.array(coordinates)
             if min(numpy.array(coordinates)+(nInARow-1)*direction)>=0 and all(numpy.array(coordinates)+(nInARow-1)*direction<self.sizes):
                 if all([cells[tuple(numpy.array(coordinates)+dist*numpy.array(direction))]==value for dist in range(nInARow)]):
-                    self.winnerIndex=self.symbols.index(value)
+                    #self.winnerIndex=self.symbols.index(value)
                     return True
                 return False
 
@@ -45,7 +48,6 @@ class Board:
 
         iterable=numpy.nditer(cells,flags=['multi_index'])
         if any(checkWinCell(nInARow,iterable.multi_index,value) for cell in iterable if cell==value):
-            self.winnerIndex=self.symbols.index(value)
             return True
         return False
 
