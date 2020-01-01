@@ -57,7 +57,7 @@ class NByN(Screen):
         self.w=w
         self.winner=None
         self.board=Board(dimensions=[w,h])
-        self.ai=aiAlgorithms.ABPMM(self.board)
+        self.ai=aiAlgorithms.NaiveMiniMax(self.board)
         super(NByN,self).__init__(**kwargs)
         for y in range(h):
             self.b.append([])
@@ -80,6 +80,13 @@ class NByN(Screen):
             move=self.ai.getMove(self.board.currentPlayerNum)
             self.board.placeMove(move,self.board.players[self.board.currentPlayerNum].value)
             self.b[move[1]][move[0]].text=str(self.board.players[self.board.currentPlayerNum].value)
+            if self.board.checkWin(cells=self.board.cells,value=self.board.players[self.board.currentPlayerNum].value,nInARow=min(self.board.sizes)):
+                self.winner=self.board.currentPlayerNum
+                popup = Popup(title='Winner!',
+                content=Label(text="{} has won the game!".format(self.board.symbols[self.board.currentPlayerNum])),
+                size_hint=(None, None), size=(400, 400))
+                popup.open()
+                return True
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
 
 

@@ -30,12 +30,16 @@ class NaiveMiniMax:
 
     def minimax(self,depth,playerIndex):
         for player in self.board.players:
-            if self.board.checkWin(value=self.board.players[playerIndex].value):
-                if playerIndex==self.playerIndex:
+            if self.board.checkWin(value=player.value):
+                if playerIndex!=self.playerIndex:
                     return 1
                 else:
                     return -1
-        if depth==0:
+        emptyCells=0
+        for index,value in numpy.ndenumerate(self.board.cells):
+            if value=="0.0":
+                emptyCells+=1
+        if emptyCells==0:
             return 0
         if playerIndex==self.playerIndex:
             bestMoveValue=-inf
@@ -218,6 +222,7 @@ class ABPMM:
             if self.board.cells[index]=="0.0":
                 self.board.cells[index]=self.board.players[self.playerIndex].value
                 val,moveDepth=self.abpmm(maxDepth,(self.playerIndex+1)%len(self.board.players),-inf,inf)
+                print(val,moveDepth)
                 self.board.cells[index]="0.0"
                 if val>=bestMoveValue:
                     if val==-1 or val == 0:
@@ -230,18 +235,20 @@ class ABPMM:
                             self.bestMoveValue=val
                             self.bestMoveLocation=index
                             self.winMoveDepth=moveDepth
+        print()
         return self.bestMoveLocation
 
 
     def abpmm(self,depth,playerIndex,alpha,beta):
+        #print(self.board.cells,self.board.checkWin(value="X"))
         winMoveDepth=self.maxDepth
         loseMoveDepth=0
-        for player in self.board.players:
-            if self.board.checkWin(value=self.board.players[playerIndex].value):
-                if playerIndex==self.playerIndex:
-                    return 1,0
-                else:
-                    return -1,0
+        if self.board.checkWin(value=self.board.players[playerIndex].value):
+            if playerIndex==self.playerIndex:
+                print(self.board.cells)
+                return 1,0
+            else:
+                return -1,0
         if depth==0:
             return 0,0
         if playerIndex==self.playerIndex:
