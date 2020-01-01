@@ -57,7 +57,7 @@ class NByN(Screen):
         self.w=w
         self.winner=None
         self.board=Board(dimensions=[w,h])
-        self.ai=aiAlgorithms.NaiveMiniMax(self.board)
+        self.ai=aiAlgorithms.NABPMM(self.board)
         super(NByN,self).__init__(**kwargs)
         for y in range(h):
             self.b.append([])
