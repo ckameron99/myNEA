@@ -76,6 +76,16 @@ class NByN(Screen):
                 size_hint=(None, None), size=(400, 400))
                 popup.open()
                 return True
+            emptyCells=0
+            for index,value in numpy.ndenumerate(self.board.cells):
+                if value=="0.0":
+                    emptyCells+=1
+            if emptyCells==0:
+                popup = Popup(title='Draw!',
+                content=Label(text="Neither player has won the game!"),
+                size_hint=(None, None), size=(400, 400))
+                popup.open()
+                return True
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
             move=self.ai.getMove(self.board.currentPlayerNum)
             self.board.placeMove(move,self.board.players[self.board.currentPlayerNum].value)
