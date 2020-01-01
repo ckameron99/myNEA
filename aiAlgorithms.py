@@ -57,7 +57,6 @@ class NaiveMiniMax:
                     val=self.minimax(depth-1,(playerIndex+1)%len(self.board.players))
                     self.board.cells[index]="0.0"
                     bestMoveValue=min(val,bestMoveValue)
-        #print(depth,val,self.board.cells,"\n")
         return bestMoveValue
 
 class MiniMax:
@@ -82,15 +81,15 @@ class MiniMax:
                 if val>=bestMoveValue:
                     if val==-1 or val == 0:
                         if moveDepth>=self.loseMoveDepth:
-                            self.bestMoveValue=val
-                            self.bestMoveLocation=index
+                            bestMoveValue=val
+                            bestMoveLocation=index
                             self.loseMoveDepth=moveDepth
                     elif val==1:
                         if moveDepth<self.winMoveDepth:
-                            self.bestMoveValue=val
-                            self.bestMoveLocation=index
+                            bestMoveValue=val
+                            bestMoveLocation=index
                             self.winMoveDepth=moveDepth
-        return self.bestMoveLocation
+        return bestMoveLocation
 
 
     def minimax(self,depth,playerIndex):
@@ -148,7 +147,6 @@ class MiniMax:
                                 bestMoveLocation=index
                                 winMoveDepth=moveDepth
                                 bestMoveDepth=winMoveDepth
-        #print(depth,val,self.board.cells,"\n")
         return bestMoveValue,bestMoveDepth+1
 
 class NABPMM:
@@ -209,7 +207,6 @@ class NABPMM:
                     beta=min(beta,bestMoveValue)
                     if alpha>=beta:
                         break
-        #print(depth,val,self.board.cells,"\n")
         return bestMoveValue
 
 class ABPMM:
@@ -230,25 +227,22 @@ class ABPMM:
             if self.board.cells[index]=="0.0":
                 self.board.cells[index]=self.board.players[self.playerIndex].value
                 val,moveDepth=self.abpmm(maxDepth,(self.playerIndex+1)%len(self.board.players),-inf,inf)
-                print(val,moveDepth)
                 self.board.cells[index]="0.0"
                 if val>=bestMoveValue:
                     if val==-1 or val == 0:
                         if moveDepth>=self.loseMoveDepth:
-                            self.bestMoveValue=val
-                            self.bestMoveLocation=index
+                            bestMoveValue=val
+                            bestMoveLocation=index
                             self.loseMoveDepth=moveDepth
                     elif val==1:
                         if moveDepth<self.winMoveDepth:
-                            self.bestMoveValue=val
-                            self.bestMoveLocation=index
+                            bestMoveValue=val
+                            bestMoveLocation=index
                             self.winMoveDepth=moveDepth
-        print()
-        return self.bestMoveLocation
+        return bestMoveLocation
 
 
     def abpmm(self,depth,playerIndex,alpha,beta):
-        #print(self.board.cells,self.board.checkWin(value="X"))
         winMoveDepth=self.maxDepth
         loseMoveDepth=0
         for player in self.board.players:
@@ -309,7 +303,6 @@ class ABPMM:
                     beta=min(beta,bestMoveValue)
                     if alpha>=beta:
                         break
-        #print(depth,val,self.board.cells,"\n")
         return bestMoveValue,bestMoveDepth+1
 
 
