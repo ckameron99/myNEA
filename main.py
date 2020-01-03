@@ -5,6 +5,8 @@ from ai import AI
 import aiAlgorithms
 import functools
 import numpy
+import os
+import pickle
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -14,9 +16,8 @@ from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.behaviors import DragBehavior
+from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import ObjectProperty,NumericProperty
-Builder.load_file("main.kv")
-
 
 
 class MenuScreen(Screen):
@@ -49,12 +50,28 @@ class MenuScreen(Screen):
         self.manager.transition.direction='left'
         self.manager.current='game'
 
+    def loadFileGUI(self):
+        content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
+        self.popup = Popup(title="Load file", content=content,
+                            size_hint=(0.9, 0.9))
+        self.popup.open()
+
+    def loadFile(self, path, filename):
+        with open(os.path.join(path, filename[0])) as stream:
+            #TODO: load game from pickled file
+            pass
+        self.dismissPopup()
+
+    def dismissPopup(self):
+        self.popup.dismiss()
+
 
 class NByN(Screen):
     grid=ObjectProperty(None)
     def __init__(self,w,h,**kwargs):
         self.b=[]
         self.w=w
+        self.h=h
         self.winner=None
         self.board=Board(dimensions=[w,h])
         self.ai=aiAlgorithms.ABPMM(self.board)
@@ -98,6 +115,57 @@ class NByN(Screen):
                 popup.open()
                 return True
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
+
+    def loadFileGUI(self):
+        content = LoadDialog(load=self.loadFile, cancel=self.dismissPopup)
+        self.popup = Popup(title="Load game", content=content,
+                            size_hint=(0.75, 0.75))
+        self.popup.open()
+
+    def loadFile(self, path, filename):
+        with open(os.path.join(path, filename[0]).replace("/savedGames/savedGames/","/savedGames/") ,"rb") as f:
+            self.board=pickle.load(f)
+            self.boardToGUI()
+        self.dismissPopup()
+
+    def saveFileGUI(self):
+        content = SaveDialog(save=self.saveFile, cancel=self.dismissPopup)
+        self.popup = Popup(title="Save game", content=content,
+                            size_hint=(0.75, 0.75))
+        self.popup.open()
+
+    def saveFile(self, path, filename):
+        with open(os.path.join(path, filename), 'wb') as f:
+            pickle.dump(self.board,f)
+        self.dismissPopup()
+
+    def dismissPopup(self):
+        self.popup.dismiss()
+
+    def boardToGUI(self):
+        self.ai=aiAlgorithms.ABPMM(self.board)
+        self.grid.clear_widgets()
+        self.b=[]
+        for y in range(self.h):
+            self.b.append([])
+            for x in range(self.w):
+                if self.board.cells[x][y]=="0.0":
+                    boardText=''
+                else:
+                    boardText=self.board.cells[x][y]
+                self.b[-1].append(Tile(text=boardText,xLoc=x,yLoc=y))
+                self.b[-1][-1].bind(on_press=self.makeMove)
+                self.grid.add_widget(self.b[-1][-1])
+
+
+class LoadDialog(FloatLayout):
+    load = ObjectProperty(None)
+    cancel = ObjectProperty(None)
+
+
+class SaveDialog(FloatLayout):
+    save = ObjectProperty(None)
+    cancel = ObjectProperty(None)
 
 
 class UltimateTicTacToe(NByN):

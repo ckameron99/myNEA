@@ -42,7 +42,7 @@
 
     BoxLayout:
         size_hint: None,None
-        size: 100,50
+        size: 300,50
         #pos_hint: {"x":0.03,"top":0.97}
         x: max(10,root.width/100*3)
         top: root.height- max(10,root.height/100*3)
@@ -52,3 +52,59 @@
                 root.manager.transition.direction='right'
                 root.manager.current = 'menu'
                 root.manager.remove_widget(root)
+        Button:
+            text: 'Load'
+            on_release: root.loadFileGUI()
+        Button:
+            text: 'Save'
+            on_release: root.saveFileGUI()
+
+<LoadDialog>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            path: "./savedGames"
+            on_submit: root.load(filechooser.path, filechooser.selection)
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Cancel"
+                on_release: root.cancel()
+
+            Button:
+                text: "Load"
+                on_release: root.load(filechooser.path, filechooser.selection)
+
+<SaveDialog>:
+    text_input: text_input
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            path: "savedGames/"
+            on_selection: text_input.text = (self.selection and self.selection[0] or '').replace("/savedGames/savedGames/","/savedGames/")
+            on_submit: root.save(filechooser.path,text_input.text)
+
+        TextInput:
+            id: text_input
+            size_hint_y: None
+            height: 30
+            multiline: False
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Cancel"
+                on_release: root.cancel()
+
+            Button:
+                text: "Save"
+                on_release: root.save(filechooser.path, text_input.text)
