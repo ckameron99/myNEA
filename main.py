@@ -209,6 +209,7 @@ class UltimateTicTacToe(NByN):
             pickle.dump(self.subBoards,f)
         self.dismissPopup()
 
+
     def boardToGUI(self):
         #set up the sub boards and the GUI
         self.grid.clear_widgets()
