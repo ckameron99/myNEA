@@ -82,7 +82,7 @@ class NByN(Screen):
                 self.b[-1].append(Tile(text="",xLoc=x,yLoc=y))
                 self.b[-1][-1].bind(on_press=self.makeMove)
                 self.grid.add_widget(self.b[-1][-1])
-                
+
     def makeMove(self,instance):
         if self.board.cells[instance.xLoc][instance.yLoc]=="0.0":
             self.board.placeMove((instance.xLoc,instance.yLoc),self.board.players[self.board.currentPlayerNum].value)
@@ -265,10 +265,6 @@ class QuantumTicTacToe(NByN):
                 self.superPositionBoard[x][y].guiTile=tile
 
 
-    class DragLabel(DragBehavior,Label):
-        pass
-
-
     def makeMove(self,instance):
         if not self.superPositionBoard[instance.xLoc][instance.yLoc].collapsed:
             if self.firstMove:
@@ -323,11 +319,9 @@ class QuantumTicTacToe(NByN):
 
         firstMove=Button(text="First move")
         notFirstMove=Button(text="Second move")
-        #dragBox=DragLabel()
         box=BoxLayout()
         box.add_widget(firstMove)
         box.add_widget(notFirstMove)
-        #box.add_widget(dragBox)
         self.popup=Popup(title="Collapsing menu",content=box,auto_dismiss=False,size_hint=(None,None),size=(300,100),pos_hint={'top':1})
         firstMove.bind(on_press=firstMoveCollapse)
         notFirstMove.bind(on_press=secondMoveCollapse)
@@ -335,14 +329,45 @@ class QuantumTicTacToe(NByN):
 
     def loadFile(self, path, filename):
         with open(os.path.join(path, filename[0]).replace("/savedGames/savedGames/","/savedGames/") ,"rb") as f:
-            self.board=pickle.load(f)
-            self.boardToGUI()
+            p=pickle.load(f)
+            self.moveNumber=p.moveNumber
+            self.firstMove=p.firstMove
+            self.collapsedBoard=p.collapsedBoard
+            self.superPositionBoard=p.superPositionBoard
+            self.grid.clear_widgets()
+            for index,quantumTile in numpy.ndenumerate(self.superPositionBoard):
+                text=p.superPositionBoardText[index]
+                if text!='':
+                    text+=' '
+                tile=Tile(text=text,font_size=p.superPositionBoardFontSize[index],xLoc=index[0],yLoc=index[1])
+                tile.bind(on_press=self.makeMove)
+                self.grid.add_widget(tile)
+                self.superPositionBoard[index].guiTile=tile
+                quantumTile.game=self
         self.dismissPopup()
 
     def saveFile(self, path, filename):
         with open(os.path.join(path, filename), 'wb') as f:
-            pickle.dump(self.board,f)
+            p=self.Pickler(self.moveNumber,self.firstMove,self.collapsedBoard,self.superPositionBoard,self.QuantumTile)
+            pickle.dump(p,f)
         self.dismissPopup()
+
+
+    class Pickler:
+        def __init__(self,moveNumber,firstMove,collapsedBoard,superPositionBoard,QuantumTile):
+            self.moveNumber=moveNumber
+            self.firstMove=firstMove
+            self.collapsedBoard=collapsedBoard
+            self.superPositionBoard=numpy.ndarray((3,3),dtype=numpy.dtype(QuantumTile))
+            self.superPositionBoardText=numpy.chararray((3,3),unicode=True,itemsize=100)
+            self.superPositionBoardFontSize=numpy.chararray((3,3),unicode=True,itemsize=100)
+            for index,quantumTile in numpy.ndenumerate(superPositionBoard):
+                newIndex=index[::-1]
+                self.superPositionBoard[newIndex]=superPositionBoard[index]
+                self.superPositionBoardText[newIndex]=quantumTile.guiTile.text
+                self.superPositionBoardFontSize[newIndex]=quantumTile.guiTile.font_size
+                quantumTile.guiTile=None
+                quantumTile.game=None
 
 
     class QuantumTile:
