@@ -82,6 +82,7 @@ class NByN(Screen):
                 self.b[-1].append(Tile(text="",xLoc=x,yLoc=y))
                 self.b[-1][-1].bind(on_press=self.makeMove)
                 self.grid.add_widget(self.b[-1][-1])
+                
     def makeMove(self,instance):
         if self.board.cells[instance.xLoc][instance.yLoc]=="0.0":
             self.board.placeMove((instance.xLoc,instance.yLoc),self.board.players[self.board.currentPlayerNum].value)
@@ -209,7 +210,6 @@ class UltimateTicTacToe(NByN):
             pickle.dump(self.subBoards,f)
         self.dismissPopup()
 
-
     def boardToGUI(self):
         #set up the sub boards and the GUI
         self.grid.clear_widgets()
@@ -291,7 +291,6 @@ class QuantumTicTacToe(NByN):
                     self.moveNumber+=1
                     self.collapsedBoard.currentPlayerNum=(self.collapsedBoard.currentPlayerNum+1)%len(self.collapsedBoard.players)
 
-
     def moveNumRepr(self,num):
         return (num+1)//len(self.collapsedBoard.players) #converts the move number into the move number of the player
 
@@ -300,10 +299,12 @@ class QuantumTicTacToe(NByN):
             self.superPositionBoard[firstMoveX][firstMoveY].collapse(moveNumber)
             self.popup.dismiss()
             checkWins()
+
         def secondMoveCollapse(instance):
             self.superPositionBoard[secondMoveX][secondMoveY].collapse(moveNumber)
             self.popup.dismiss()
             checkWins()
+
         def checkWins():
             winners=[]
             for symbol in self.collapsedBoard.symbols[:len(self.collapsedBoard.players)]:
@@ -369,8 +370,6 @@ class QuantumTicTacToe(NByN):
                     if not tile.collapsed:
                         tile.collapse(moveNumber)
             self.game.collapsedBoard.placeMove((self.x,self.y),self.game.collapsedBoard.symbols[(collapsingMoveNumber-1)%len(self.game.collapsedBoard.players)])
-
-
 
 
 class Tile(Button):
