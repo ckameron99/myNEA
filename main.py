@@ -198,6 +198,43 @@ class UltimateTicTacToe(NByN):
                     print("Winner!")
             self.mainBoard.currentPlayerNum=(self.mainBoard.currentPlayerNum+1)%len(self.mainBoard.players)
 
+    def loadFile(self, path, filename):
+        with open(os.path.join(path, filename[0]).replace("/savedGames/savedGames/","/savedGames/") ,"rb") as f:
+            self.subBoards=pickle.load(f)
+            self.boardToGUI()
+        self.dismissPopup()
+
+    def saveFile(self, path, filename):
+        with open(os.path.join(path, filename), 'wb') as f:
+            pickle.dump(self.subBoards,f)
+        self.dismissPopup()
+
+    def boardToGUI(self):
+        #set up the sub boards and the GUI
+        self.grid.clear_widgets()
+        numMoves=0
+        for cellNum in range(81):
+            mainBoardY=cellNum//27
+            subBoardY=(cellNum%27)//9
+            mainBoardX=(cellNum%9)//3
+            subBoardX=cellNum%3
+            if self.subBoards[mainBoardX][mainBoardY].cells[subBoardX][subBoardY]=="0.0":
+                boardText=''
+            else:
+                boardText=self.subBoards[mainBoardX][mainBoardY].cells[subBoardX][subBoardY]
+                numMoves+=1
+            tile=UltimateTile(text=boardText,mainBoardX=mainBoardX,mainBoardY=mainBoardY,subBoardX=subBoardX,subBoardY=subBoardY)
+            tile.bind(on_press=self.makeMove)
+            self.grid.add_widget(tile)
+        #set the current player to the player when the game was saved
+        self.mainBoard.currentPlayerNum=numMoves%len(self.mainBoard.players)
+        #construct the main board from the subboards
+        for index,subBoard in numpy.ndenumerate(self.subBoards):
+            for player in self.mainBoard.players:
+                if subBoard.checkWin(value=player.value):
+                    self.mainBoard.placeMove(index,player.value)
+
+
 class QuantumTicTacToe(NByN):
     grid=ObjectProperty(None)
 
@@ -293,6 +330,17 @@ class QuantumTicTacToe(NByN):
         firstMove.bind(on_press=firstMoveCollapse)
         notFirstMove.bind(on_press=secondMoveCollapse)
         self.popup.open()
+
+    def loadFile(self, path, filename):
+        with open(os.path.join(path, filename[0]).replace("/savedGames/savedGames/","/savedGames/") ,"rb") as f:
+            self.board=pickle.load(f)
+            self.boardToGUI()
+        self.dismissPopup()
+
+    def saveFile(self, path, filename):
+        with open(os.path.join(path, filename), 'wb') as f:
+            pickle.dump(self.board,f)
+        self.dismissPopup()
 
 
     class QuantumTile:
