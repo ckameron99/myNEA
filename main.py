@@ -17,14 +17,21 @@ from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.dropdown import DropDown
 from kivy.properties import ObjectProperty,NumericProperty
 
+
+class CustomDropDown(BoxLayout):
+    pass
 
 class MenuScreen(Screen):
     def __init__(self,**kwargs):
         self.xDim=3
         self.yDim=3
         super(MenuScreen,self).__init__(**kwargs)
+        self.dropdown=CustomDropDown()
+        self.add_widget(self.dropdown)
+        self.dropdown.ids.dropdown.dismiss()
 
     def update(self,x,y):
         if x!=None:
@@ -32,23 +39,32 @@ class MenuScreen(Screen):
         if y!=None:
             self.yDim=int(y)
 
-    def startNByN(self):
-        self.nByN=NByN(name='game',w=self.yDim,h=self.xDim)
-        self.manager.add_widget(self.nByN)
+    def startGame(self,type):
+        aiKey={
+        'None':aiAlgorithms.NoneAI,
+        'NaiveMinimax':aiAlgorithms.NaiveMiniMax,
+        'Minimax':aiAlgorithms.MiniMax,
+        'NABPMM':aiAlgorithms.NABPMM,
+        'ABPMM':aiAlgorithms.ABPMM
+        }
+        games={
+        'NByN':NByN,
+        'Ultimate':UltimateTicTacToe,
+        'Quantum':QuantumTicTacToe
+        }
+        self.game=games[type](name='game',w=self.yDim,h=self.xDim,ai=aiKey[self.dropdown.ids.mainbutton.text])
+        self.manager.add_widget(self.game)
         self.manager.transition.direction='left'
         self.manager.current='game'
+
+    def startNByN(self):
+        self.startGame('NByN')
 
     def startUltimate(self):
-        self.ultimate=UltimateTicTacToe(name='game',w=self.yDim,h=self.xDim)
-        self.manager.add_widget(self.ultimate)
-        self.manager.transition.direction='left'
-        self.manager.current='game'
+        self.startGame('Ultimate')
 
     def startQuantum(self):
-        self.quantum=QuantumTicTacToe(name='game',w=self.yDim,h=self.xDim)
-        self.manager.add_widget(self.quantum)
-        self.manager.transition.direction='left'
-        self.manager.current='game'
+        self.startGame('Quantum')
 
     def loadFileGUI(self):
         content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
@@ -65,16 +81,19 @@ class MenuScreen(Screen):
     def dismissPopup(self):
         self.popup.dismiss()
 
+    def setAI(self,aiNum):
+        print(aiNum)
+
 
 class NByN(Screen):
     grid=ObjectProperty(None)
-    def __init__(self,w,h,**kwargs):
+    def __init__(self,w,h,ai,**kwargs):
         self.b=[]
         self.w=w
         self.h=h
         self.winner=None
         self.board=Board(dimensions=[w,h])
-        self.ai=aiAlgorithms.ABPMM(self.board)
+        self.ai=ai(self.board)
         super(NByN,self).__init__(**kwargs)
         for y in range(h):
             self.b.append([])
@@ -106,16 +125,17 @@ class NByN(Screen):
                 return True
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
             move=self.ai.getMove(self.board.currentPlayerNum)
-            self.board.placeMove(move,self.board.players[self.board.currentPlayerNum].value)
-            self.b[move[1]][move[0]].text=str(self.board.players[self.board.currentPlayerNum].value)
-            if self.board.checkWin(cells=self.board.cells,value=self.board.players[self.board.currentPlayerNum].value,nInARow=min(self.board.sizes)):
-                self.winner=self.board.currentPlayerNum
-                popup = Popup(title='Winner!',
-                content=Label(text="{} has won the game!".format(self.board.symbols[self.board.currentPlayerNum])),
-                size_hint=(None, None), size=(400, 400))
-                popup.open()
-                return True
-            self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
+            if move:
+                self.board.placeMove(move,self.board.players[self.board.currentPlayerNum].value)
+                self.b[move[1]][move[0]].text=str(self.board.players[self.board.currentPlayerNum].value)
+                if self.board.checkWin(cells=self.board.cells,value=self.board.players[self.board.currentPlayerNum].value,nInARow=min(self.board.sizes)):
+                    self.winner=self.board.currentPlayerNum
+                    popup = Popup(title='Winner!',
+                    content=Label(text="{} has won the game!".format(self.board.symbols[self.board.currentPlayerNum])),
+                    size_hint=(None, None), size=(400, 400))
+                    popup.open()
+                    return True
+                self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
 
     def loadFileGUI(self):
         content = LoadDialog(load=self.loadFile, cancel=self.dismissPopup)
@@ -171,13 +191,13 @@ class SaveDialog(FloatLayout):
 
 class UltimateTicTacToe(NByN):
     grid=ObjectProperty(None)
-    def __init__(self,w=3,h=3,**kwargs):
+    def __init__(self,w=3,h=3,ai=None,**kwargs):
         self.w=9
         self.mainBoard=Board(dimensions=[w,h])
         self.subBoards=numpy.ndarray((3,3),dtype=numpy.dtype(Board))
         for index,x in numpy.ndenumerate(self.subBoards):
             self.subBoards[index]=Board(dimensions=[3,3])
-        #self.ai=aiAlgorithms.MCTS(self.board)
+        self.ai=ai(self.mainBoard)
         super(NByN,self).__init__(**kwargs)
         for cellNum in range(81):
             mainBoardY=cellNum//27
@@ -245,13 +265,14 @@ class QuantumTicTacToe(NByN):
             yield id
             id+=1
 
-    def __init__(self,w=3,h=3,**kwargs):
+    def __init__(self,w=3,h=3,ai=None,**kwargs):
         self.w=w
         self.moveNumber=1
         self.firstMove=True
         self.collapsedBoard=Board(dimensions=[3,3])
         self.superPositionBoard=numpy.ndarray((3,3),dtype=numpy.dtype(self.QuantumTile))
         gen=self.seq()
+        self.ai=ai(self.collapsedBoard)
         for index,x in numpy.ndenumerate(self.superPositionBoard):
             xPos=index[1]
             yPos=index[0]

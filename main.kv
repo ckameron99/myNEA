@@ -31,6 +31,45 @@
         on_press: root.startUltimate()
 
 
+<CustomDropDown>:
+    size_hint:None,None
+    height: '48dp'
+    width: '300dp'
+    pos_hint: {"center_x":0.5,"center_y":0.5}
+    Button:
+        id: mainbutton
+        text: 'Choose AI'
+        on_release: dropdown.open(self)
+    DropDown:
+        id: dropdown
+        on_select: mainbutton.text = '{}'.format(args[1])
+        Button:
+            size_hint_y: None
+            height:44
+            text: 'Two Player'
+            on_release: dropdown.select('None')
+        Button:
+            size_hint_y: None
+            height:44
+            text: 'Naive Minimax'
+            on_release: dropdown.select('NaiveMinimax')
+        Button:
+            size_hint_y: None
+            height:44
+            text: 'Minimax'
+            on_release: dropdown.select('Minimax')
+        Button:
+            size_hint_y: None
+            height:44
+            text: 'Naive Minimax with Alpha Beta Pruning'
+            on_release: dropdown.select('NABPMM')
+        Button:
+            size_hint_y: None
+            height:44
+            text: 'Minimax with Alpha Beta Pruning'
+            on_release: dropdown.select('ABPMM')
+
+
 <NByN>:
     grid: Grid
     GridLayout:

@@ -5,6 +5,12 @@ import numpy
 from math import inf
 import time
 
+class NoneAI:
+    def __init__(self,board):
+        pass
+    def getMove(self,playerIndex):
+        return False
+
 class NaiveMiniMax:
     def __init__(self,board):
         self.playerIndex=None
