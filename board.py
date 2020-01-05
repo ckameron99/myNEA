@@ -1,3 +1,4 @@
+#! /usr/bin/python3
 import numpy, itertools
 class Board:
     def __init__(self,dimensions=[3,3],numPlayers=2):

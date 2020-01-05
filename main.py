@@ -1,7 +1,7 @@
+#! /usr/bin/python3
 from user import User
 from board import Board
 from scoreboard import Scoreboard
-from ai import AI
 import aiAlgorithms
 import functools
 import numpy
