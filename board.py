@@ -28,11 +28,11 @@ class Board:
             return True
         return False
 
-    def checkWin(self, nInARow=3, value=1,cells=None):
+    def checkWin(self, nInARow=3, value=1,cells=None): #check if the board has been won by a particular value
         if cells is None:
             cells=self.cells
         def checkWinAdj(nInARow,coordinates,value,adjCoord):
-            direction=numpy.array(adjCoord)-numpy.array(coordinates)
+            direction=numpy.array(adjCoord)-numpy.array(coordinates) #calculate the direction from the main cell to the
             if min(numpy.array(coordinates)+(nInARow-1)*direction)>=0 and all(numpy.array(coordinates)+(nInARow-1)*direction<self.sizes):
                 if all([cells[tuple(numpy.array(coordinates)+dist*numpy.array(direction))]==value for dist in range(nInARow)]):
                     #self.winnerIndex=self.symbols.index(value)
@@ -41,14 +41,14 @@ class Board:
 
         def checkWinCell(nInARow,coordinates,value):
             pos=[[max(0,d-1),d,min(d+1,self.sizes[dimension]-1)] for dimension,d in enumerate(coordinates)]
-            indexes=itertools.product("".join([chr(ord("0")+i) for i in range(3)]),repeat=len(coordinates))
-            surroundingCoordinates=[[pos[i][int(index[i])] for i in range(len(index))] for index in indexes]
-            surroundingCoordinates=[list(coord) for coord in set(tuple(i) for i in surroundingCoordinates)]
-            surroundingCoordinates.remove(list(coordinates))
-            return any([checkWinAdj(nInARow,coordinates,value,adjCoord) for adjCoord in surroundingCoordinates])
+            indexes=itertools.product("".join([chr(ord("0")+i) for i in range(3)]),repeat=len(coordinates)) #creates a list of all indexes within the board
+            surroundingCoordinates=[[pos[i][int(index[i])] for i in range(len(index))] for index in indexes] #create a list of all indexes adjacent to the cell, but with duplicates
+            surroundingCoordinates=[list(coord) for coord in set(tuple(i) for i in surroundingCoordinates)] #remove duplicates
+            surroundingCoordinates.remove(list(coordinates)) #remove the original index
+            return any([checkWinAdj(nInARow,coordinates,value,adjCoord) for adjCoord in surroundingCoordinates]) #for each adjacent cell to the main cell, check if there is a row starting in the main cell in the direction of the adjacent cell
 
         iterable=numpy.nditer(cells,flags=['multi_index'])
-        if any(checkWinCell(nInARow,iterable.multi_index,value) for cell in iterable if cell==value):
+        if any(checkWinCell(nInARow,iterable.multi_index,value) for cell in iterable if cell==value): #for each cell, check if a row of three starts at that cell
             return True
         return False
 
