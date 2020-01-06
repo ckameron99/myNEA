@@ -1,12 +1,16 @@
 #! /usr/bin/python3
+#import local python files
 from user import User
 from board import Board
 from scoreboard import Scoreboard
 import aiAlgorithms
-import functools
+#numpy is a library that I used for multi-dimensional array data structure and multi-dimensional enumeration
 import numpy
+#os is a library that I used for file interaction for saving and loading games
 import os
+#pickle is a library used in order to serialize objects that represent the game state in order to save them to a file, or deserialize loaded game states in order to load a game
 import pickle
+#the kivy library provides all the GUI components used to render the game
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -25,21 +29,26 @@ class CustomDropDown(BoxLayout):
     pass
 
 class MenuScreen(Screen):
+    """The MenuScreen class is a class that represents the main menu that the user is greeted with when the game is first run. This includes handling the various settings that the user can change from the main menu, and creating a new game when the user decides to start a game."""
     def __init__(self,**kwargs):
+        #set the default dimensions of the n by n board to be a 3 by 3 board, which is the standard version of tic tac toe
         self.xDim=3
         self.yDim=3
         super(MenuScreen,self).__init__(**kwargs)
+        #create the dropdown menu to allow the user to choose which AI to play against
         self.dropdown=CustomDropDown()
         self.add_widget(self.dropdown)
         self.dropdown.ids.dropdown.dismiss()
 
     def update(self,x,y):
+        #update the dimensions of the n by n tic tac toe board
         if x!=None:
             self.xDim=int(x)
         if y!=None:
             self.yDim=int(y)
 
     def startGame(self,type):
+        #start a new game of the specified type with the AI selected by the dropdown menu
         aiKey={
         'None':aiAlgorithms.NoneAI,
         'NaiveMinimax':aiAlgorithms.NaiveMiniMax,
@@ -52,9 +61,12 @@ class MenuScreen(Screen):
         'Ultimate':UltimateTicTacToe,
         'Quantum':QuantumTicTacToe
         }
+        #create the new game
         self.game=games[type](name='game',w=self.yDim,h=self.xDim,ai=aiKey[self.dropdown.ids.mainbutton.text])
+        #add the new game to the screen manager
         self.manager.add_widget(self.game)
         self.manager.transition.direction='left'
+        #change the current screen to the new game
         self.manager.current='game'
 
     def startNByN(self):
@@ -66,26 +78,12 @@ class MenuScreen(Screen):
     def startQuantum(self):
         self.startGame('Quantum')
 
-    def loadFileGUI(self):
-        content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
-        self.popup = Popup(title="Load file", content=content,
-                            size_hint=(0.9, 0.9))
-        self.popup.open()
-
-    def loadFile(self, path, filename):
-        with open(os.path.join(path, filename[0])) as stream:
-            #TODO: load game from pickled file
-            pass
-        self.dismissPopup()
-
     def dismissPopup(self):
         self.popup.dismiss()
 
-    def setAI(self,aiNum):
-        print(aiNum)
-
 
 class NByN(Screen):
+    """The NByN class is a class which represents a tic tac toe game of custom dimensions, and is also used to represent a 3 by 3 game. The class will manage the flow of the game, and contain all the data structures needed to store the game state, and the AI, if present."""
     grid=ObjectProperty(None)
     def __init__(self,w,h,ai,**kwargs):
         self.b=[]
@@ -103,16 +101,18 @@ class NByN(Screen):
                 self.grid.add_widget(self.b[-1][-1])
 
     def makeMove(self,instance):
-        if self.board.cells[instance.xLoc][instance.yLoc]=="0.0":
-            self.board.placeMove((instance.xLoc,instance.yLoc),self.board.players[self.board.currentPlayerNum].value)
-            instance.text=str(self.board.players[self.board.currentPlayerNum].value)
-            if self.board.checkWin(cells=self.board.cells,value=self.board.players[self.board.currentPlayerNum].value,nInARow=min(self.board.sizes)):
+        #when the user clicks on a tile, it calls this method, and passes the graphical tile through as 'instance', allowing aspects of the visual representation of that tile to be changed
+        if self.board.cells[instance.xLoc][instance.yLoc]=="0.0": #This ensures that the board will only react if the tile is vacent
+            self.board.placeMove((instance.xLoc,instance.yLoc),self.board.players[self.board.currentPlayerNum].value) #Change the logical representation of the board to contain the new move
+            instance.text=str(self.board.players[self.board.currentPlayerNum].value) #Change the graphical representation of the board to contain the move, so that the user has feedback of their move
+            if self.board.checkWin(cells=self.board.cells,value=self.board.players[self.board.currentPlayerNum].value,nInARow=min(self.board.sizes)): #Check if the user has now won the game
                 self.winner=self.board.currentPlayerNum
                 popup = Popup(title='Winner!',
                 content=Label(text="{} has won the game!".format(self.board.symbols[self.board.currentPlayerNum])),
                 size_hint=(None, None), size=(400, 400))
                 popup.open()
                 return True
+            #check for a draw, as if the user did not win, then there are no more empty cells left
             emptyCells=0
             for index,value in numpy.ndenumerate(self.board.cells):
                 if value=="0.0":
@@ -123,12 +123,14 @@ class NByN(Screen):
                 size_hint=(None, None), size=(400, 400))
                 popup.open()
                 return True
+            #change the player
             self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
-            move=self.ai.getMove(self.board.currentPlayerNum)
-            if move:
-                self.board.placeMove(move,self.board.players[self.board.currentPlayerNum].value)
-                self.b[move[1]][move[0]].text=str(self.board.players[self.board.currentPlayerNum].value)
-                if self.board.checkWin(cells=self.board.cells,value=self.board.players[self.board.currentPlayerNum].value,nInARow=min(self.board.sizes)):
+            #get the move from the AI
+            move=self.ai.getMove(self.board.currentPlayerNum) #if the game is in two player mode, then the move will be None
+            if move: #If the AI exists, then play the AI's move, otherwise, leave the incremented player to allow the second player to place their move
+                self.board.placeMove(move,self.board.players[self.board.currentPlayerNum].value) #Change the logical representation of the board to contain the new move
+                self.b[move[1]][move[0]].text=str(self.board.players[self.board.currentPlayerNum].value) #Change the graphical representation of the board to contain the move, so that the user has feedback of their move
+                if self.board.checkWin(cells=self.board.cells,value=self.board.players[self.board.currentPlayerNum].value,nInARow=min(self.board.sizes)): #Check if the AI has now won the game
                     self.winner=self.board.currentPlayerNum
                     popup = Popup(title='Winner!',
                     content=Label(text="{} has won the game!".format(self.board.symbols[self.board.currentPlayerNum])),
@@ -136,40 +138,58 @@ class NByN(Screen):
                     popup.open()
                     return True
                 self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
+                #check for a draw, as if the user did not win, then there are no more empty cells left
+                emptyCells=0
+                for index,value in numpy.ndenumerate(self.board.cells):
+                    if value=="0.0":
+                        emptyCells+=1
+                if emptyCells==0:
+                    popup = Popup(title='Draw!',
+                    content=Label(text="Neither player has won the game!"),
+                    size_hint=(None, None), size=(400, 400))
+                    popup.open()
+                    return True
 
     def loadFileGUI(self):
+        #create the load file popup
         content = LoadDialog(load=self.loadFile, cancel=self.dismissPopup)
         self.popup = Popup(title="Load game", content=content,
                             size_hint=(0.75, 0.75))
         self.popup.open()
 
     def loadFile(self, path, filename):
-        with open(os.path.join(path, filename[0]).replace("/savedGames/savedGames/","/savedGames/") ,"rb") as f:
+        #load the file selected by the load file popup
+        with open(os.path.join(path, filename[0]).replace("/savedGames/savedGames/","/savedGames/") ,"rb") as f: #the load file popup duplicates the directory it started in, so any duplicate default directories have to be removed.
             self.board=pickle.load(f)
-            self.boardToGUI()
+            self.boardToGUI() #reconstruct elements of the board and GUI that were not saved from the piece of the board that was saved
         self.dismissPopup()
 
     def saveFileGUI(self):
+        #create the load file popup
         content = SaveDialog(save=self.saveFile, cancel=self.dismissPopup)
         self.popup = Popup(title="Save game", content=content,
                             size_hint=(0.75, 0.75))
         self.popup.open()
 
     def saveFile(self, path, filename):
+        ##save the file in the directory selected by the save file popup with the name selected by the popup
         with open(os.path.join(path, filename), 'wb') as f:
             pickle.dump(self.board,f)
         self.dismissPopup()
 
-    def dismissPopup(self):
+    def dismissPopup(self): #create a method to dismiss the popup
         self.popup.dismiss()
 
     def boardToGUI(self):
+        #used to construct other elements of the game from the saved board
         self.ai=aiAlgorithms.ABPMM(self.board)
+        #remove current GUI elements of the board
         self.grid.clear_widgets()
         self.b=[]
         for y in range(self.h):
             self.b.append([])
             for x in range(self.w):
+                #create the GUI cells with the relavent text
                 if self.board.cells[x][y]=="0.0":
                     boardText=''
                 else:
@@ -190,16 +210,17 @@ class SaveDialog(FloatLayout):
 
 
 class UltimateTicTacToe(NByN):
+    """The NByN class is a class which represents an ultimate game of tic tac toe. The class will manage the flow of the game, and contain all the data structures needed to store the game state."""
     grid=ObjectProperty(None)
     def __init__(self,w=3,h=3,ai=None,**kwargs):
         self.w=9
-        self.mainBoard=Board(dimensions=[w,h])
-        self.subBoards=numpy.ndarray((3,3),dtype=numpy.dtype(Board))
+        self.mainBoard=Board(dimensions=[w,h]) #represents the board of won subboards
+        self.subBoards=numpy.ndarray((3,3),dtype=numpy.dtype(Board)) #contains all the subboards in the same shape as the board of won subboards
         for index,x in numpy.ndenumerate(self.subBoards):
             self.subBoards[index]=Board(dimensions=[3,3])
         self.ai=ai(self.mainBoard)
         super(NByN,self).__init__(**kwargs)
-        for cellNum in range(81):
+        for cellNum in range(81): #create the 9x9 ((3x3)x3x3)
             mainBoardY=cellNum//27
             subBoardY=(cellNum%27)//9
             mainBoardX=(cellNum%9)//3
@@ -209,29 +230,34 @@ class UltimateTicTacToe(NByN):
             self.grid.add_widget(tile)
 
     def makeMove(self,instance):
-        if self.subBoards[instance.mainBoardX][instance.mainBoardY].cells[instance.subBoardX][instance.subBoardY]=="0.0" and self.subBoards[instance.mainBoardX][instance.mainBoardY].winnerIndex==-1:
-            instance.text=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)
-            self.subBoards[instance.mainBoardX][instance.mainBoardY].placeMove((instance.subBoardX,instance.subBoardY),str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value))
+        if self.subBoards[instance.mainBoardX][instance.mainBoardY].cells[instance.subBoardX][instance.subBoardY]=="0.0" and self.subBoards[instance.mainBoardX][instance.mainBoardY].winnerIndex==-1: #only make the move if the cell is empty and the subboard that the cell belongs to has not already been won
+            instance.text=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value) #change the GUI to reflect the player's move
+            self.subBoards[instance.mainBoardX][instance.mainBoardY].placeMove((instance.subBoardX,instance.subBoardY),str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)) #change the logical representation of the game to reflect the move
             if self.subBoards[instance.mainBoardX][instance.mainBoardY].checkWin(value=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)):
-                self.subBoards[instance.mainBoardX][instance.mainBoardY].setWinner(str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value))
-                self.mainBoard.placeMove((instance.mainBoardX,instance.mainBoardY),str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value))
+                self.subBoards[instance.mainBoardX][instance.mainBoardY].setWinner(str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)) #if the subboard is won, prevent further moves from being placed in it
+                self.mainBoard.placeMove((instance.mainBoardX,instance.mainBoardY),str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)) #if the subboard is won, place a move in the mainboard and check if the main board is now won
                 if self.mainBoard.checkWin(value=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)):
-                    print("Winner!")
+                    self.winner=self.mainBoard.currentPlayerNum
+                    popup = Popup(title='Winner!',
+                    content=Label(text="{} has won the game!".format(self.board.symbols[self.board.currentPlayerNum])),
+                    size_hint=(None, None), size=(400, 400))
+                    popup.open()
+                    return True
             self.mainBoard.currentPlayerNum=(self.mainBoard.currentPlayerNum+1)%len(self.mainBoard.players)
 
     def loadFile(self, path, filename):
         with open(os.path.join(path, filename[0]).replace("/savedGames/savedGames/","/savedGames/") ,"rb") as f:
-            self.subBoards=pickle.load(f)
+            self.subBoards=pickle.load(f) #write the data to the subboards
             self.boardToGUI()
         self.dismissPopup()
 
     def saveFile(self, path, filename):
         with open(os.path.join(path, filename), 'wb') as f:
-            pickle.dump(self.subBoards,f)
+            pickle.dump(self.subBoards,f) #dump the subboard's data, as everything else can be constructed from the subboard
         self.dismissPopup()
 
     def boardToGUI(self):
-        #set up the sub boards and the GUI
+        #clear the current GUI components
         self.grid.clear_widgets()
         numMoves=0
         for cellNum in range(81):
@@ -239,6 +265,7 @@ class UltimateTicTacToe(NByN):
             subBoardY=(cellNum%27)//9
             mainBoardX=(cellNum%9)//3
             subBoardX=cellNum%3
+            #set up the cells with the appropriate text
             if self.subBoards[mainBoardX][mainBoardY].cells[subBoardX][subBoardY]=="0.0":
                 boardText=''
             else:
@@ -268,9 +295,9 @@ class QuantumTicTacToe(NByN):
     def __init__(self,w=3,h=3,ai=None,**kwargs):
         self.w=w
         self.moveNumber=1
-        self.firstMove=True
-        self.collapsedBoard=Board(dimensions=[3,3])
-        self.superPositionBoard=numpy.ndarray((3,3),dtype=numpy.dtype(self.QuantumTile))
+        self.firstMove=True #used to keep track of which move each player is on, as each turn each player places two moves
+        self.collapsedBoard=Board(dimensions=[3,3]) #track the collapsed moves, to detect a win
+        self.superPositionBoard=numpy.ndarray((3,3),dtype=numpy.dtype(self.QuantumTile)) #used to contain the quantum tiles, which manage the GUI aspect of the cells, and track the entanglementes between themselves
         gen=self.seq()
         self.ai=ai(self.collapsedBoard)
         for index,x in numpy.ndenumerate(self.superPositionBoard):
@@ -280,6 +307,7 @@ class QuantumTicTacToe(NByN):
         super(NByN,self).__init__(**kwargs)
         for y in range(3):
             for x in range(3):
+                #create the GUI cells and allocate them to the quantum tile objects
                 tile=Tile(text="",xLoc=x,yLoc=y)
                 tile.bind(on_press=self.makeMove)
                 self.grid.add_widget(tile)
@@ -287,23 +315,24 @@ class QuantumTicTacToe(NByN):
 
 
     def makeMove(self,instance):
-        if not self.superPositionBoard[instance.xLoc][instance.yLoc].collapsed:
+        if not self.superPositionBoard[instance.xLoc][instance.yLoc].collapsed: #do not allow the move if the cell is already collapsed
             if self.firstMove:
-                self.firstMove^=1
+                self.firstMove^=1 #change to second move
                 self.firstMoveX=instance.xLoc
                 self.firstMoveY=instance.yLoc
-                instance.text+="{}{} ".format(self.collapsedBoard.symbols[self.collapsedBoard.currentPlayerNum],self.moveNumRepr(self.moveNumber))
+                instance.text+="{}{} ".format(self.collapsedBoard.symbols[self.collapsedBoard.currentPlayerNum],self.moveNumRepr(self.moveNumber)) #add the first move to the GUI
             else:
-                if not (instance.xLoc==self.firstMoveX and instance.yLoc==self.firstMoveY):
-                    self.firstMove^=1
-                    instance.text+="{}{} ".format(self.collapsedBoard.symbols[self.collapsedBoard.currentPlayerNum],self.moveNumRepr(self.moveNumber))
+                if not (instance.xLoc==self.firstMoveX and instance.yLoc==self.firstMoveY): #ensure that the player does not place both their moves in the same cell
+                    self.firstMove^=1 #change back to first move
+                    instance.text+="{}{} ".format(self.collapsedBoard.symbols[self.collapsedBoard.currentPlayerNum],self.moveNumRepr(self.moveNumber)) #add the second move to the GUI
                     if instance.text.count(" ")%3==0:
                         instance.text+="\n"
-                    if self.superPositionBoard[instance.xLoc][instance.yLoc].id!=self.superPositionBoard[self.firstMoveX][self.firstMoveY].id:
+                    #check for cyclic entanglements, as cycles necessitate a collapse
+                    if self.superPositionBoard[instance.xLoc][instance.yLoc].id!=self.superPositionBoard[self.firstMoveX][self.firstMoveY].id: #if the id's of the tiles of the two moves don't match, make them match
                         self.superPositionBoard[instance.xLoc][instance.yLoc].updateTileId(self.superPositionBoard[self.firstMoveX][self.firstMoveY].id)
                         self.superPositionBoard[instance.xLoc][instance.yLoc].quantumStates[self.moveNumber]=self.superPositionBoard[self.firstMoveX][self.firstMoveY]
                         self.superPositionBoard[self.firstMoveX][self.firstMoveY].quantumStates[self.moveNumber]=self.superPositionBoard[instance.xLoc][instance.yLoc]
-                    else:
+                    else: #if the id's of the tiles match, then begin the collapse, after finding which way they should collapse
                         self.getFirstMovePrecidenceAndCollapse(self.firstMoveX,self.firstMoveY,instance.xLoc,instance.yLoc,self.moveNumber)
                     self.moveNumber+=1
                     self.collapsedBoard.currentPlayerNum=(self.collapsedBoard.currentPlayerNum+1)%len(self.collapsedBoard.players)
@@ -324,20 +353,20 @@ class QuantumTicTacToe(NByN):
 
         def checkWins():
             winners=[]
-            for symbol in self.collapsedBoard.symbols[:len(self.collapsedBoard.players)]:
-                if self.collapsedBoard.checkWin(value=symbol):
+            for player in self.collapsedBoard.players:
+                if self.collapsedBoard.checkWin(value=player.value):
                     winners.append(symbol)
             if len(winners)==1:
                 popup = Popup(title='Winner!',
                 content=Label(text="{} has won the game!".format(winners[0])),
                 size_hint=(None, None), size=(400, 400))
                 popup.open()
-            elif len(winners)>1:
+            elif len(winners)>1: #when the board collapses, both players can gain a row of three moves, which still results in a draw
                 popup = Popup(title='Draw!',
                 content=Label(text="The board was collapsed so that several\npeople have winning moves."),
                 size_hint=(None, None), size=(400, 400))
                 popup.open()
-
+        #create and open a popup asking how the board should collapse
         firstMove=Button(text="First move")
         notFirstMove=Button(text="Second move")
         box=BoxLayout()
@@ -348,13 +377,14 @@ class QuantumTicTacToe(NByN):
         notFirstMove.bind(on_press=secondMoveCollapse)
         self.popup.open()
 
-    def loadFile(self, path, filename):
+    def loadFile(self, path, filename): #load the game from a pickled file which contains a picklable version of the game
         with open(os.path.join(path, filename[0]).replace("/savedGames/savedGames/","/savedGames/") ,"rb") as f:
             p=pickle.load(f)
             self.moveNumber=p.moveNumber
             self.firstMove=p.firstMove
             self.collapsedBoard=p.collapsedBoard
             self.superPositionBoard=p.superPositionBoard
+            #recreate the GUI to reflect the new logical representation of the game
             self.grid.clear_widgets()
             for index,quantumTile in numpy.ndenumerate(self.superPositionBoard):
                 text=p.superPositionBoardText[index]
@@ -369,7 +399,7 @@ class QuantumTicTacToe(NByN):
 
     def saveFile(self, path, filename):
         with open(os.path.join(path, filename), 'wb') as f:
-            p=self.Pickler(self.moveNumber,self.firstMove,self.collapsedBoard,self.superPositionBoard,self.QuantumTile)
+            p=self.Pickler(self.moveNumber,self.firstMove,self.collapsedBoard,self.superPositionBoard,self.QuantumTile) #create the picklable version of the game, as the GUI aspects can't be pickled
             pickle.dump(p,f)
         self.dismissPopup()
 
@@ -385,8 +415,10 @@ class QuantumTicTacToe(NByN):
             for index,quantumTile in numpy.ndenumerate(superPositionBoard):
                 newIndex=index[::-1]
                 self.superPositionBoard[newIndex]=superPositionBoard[index]
+                #save unique aspects of GUI components
                 self.superPositionBoardText[newIndex]=quantumTile.guiTile.text
                 self.superPositionBoardFontSize[newIndex]=quantumTile.guiTile.font_size
+                #remove GUI components
                 quantumTile.guiTile=None
                 quantumTile.game=None
 
@@ -395,19 +427,19 @@ class QuantumTicTacToe(NByN):
         def __init__(self,id,game,x,y):
             self.x=x
             self.y=y
-            self.id=id
-            self.quantumStates={}
+            self.id=id #used to detect cyclical graph
+            self.quantumStates={} #stores edges to other quantum tiles which act as nodes in a entanglement graph
             self.collapsed=False
             self.guiTile=None
             self.game=game
 
-        def updateTileId(self,id):
+        def updateTileId(self,id): #update the id of the object and all objects entangled with it to be the same as the id of the new entangled tile
             self.id=id
             for moveNumber, tile in self.quantumStates.items():
                 if tile.id!=id:
                     tile.updateTileId(id)
 
-        def collapse(self,collapsingMoveNumber):
+        def collapse(self,collapsingMoveNumber): #collapse the tile
             self.collapsed=True
             self.guiTile.text="{}{}".format(self.game.collapsedBoard.symbols[(collapsingMoveNumber-1)%len(self.game.collapsedBoard.players)],self.game.moveNumRepr(collapsingMoveNumber))
             self.guiTile.font_size="45sp"
@@ -432,7 +464,7 @@ class MainApp(App):
     def __init__(self):
         super().__init__()
     def build(self):
-        sm = ScreenManager()
+        sm = ScreenManager() #manages each screen that the user sees, such as the main menu and the game screen
         b=MenuScreen(name="menu")
         sm.add_widget(b)
         sm.current='menu'
