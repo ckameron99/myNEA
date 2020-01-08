@@ -69,9 +69,9 @@ class User:
         db=sqlite3.connect("user.db")
         stmt="UPDATE User set Forname = {self.forname} WHERE UserID={self.id}"
         db.execute(stmt)
-        stmt="UPDATE User set Surname = {self.forname} WHERE UserID={self.surname}"
+        stmt="UPDATE User set Surname = {self.surname} WHERE UserID={self.id}"
         db.execute(stmt)
-        stmt="UPDATE User set DOB = {self.forname} WHERE UserID={self.DOB}"
+        stmt="UPDATE User set DOB = {self.DOB} WHERE UserID={self.id}"
         db.execute(stmt)
-        stmt="UPDATE User set Kudos = {self.forname} WHERE UserID={self.Kudos}"
+        stmt="UPDATE User set Kudos = {self.kudos} WHERE UserID={self.id}"
         db.execute(stmt)
