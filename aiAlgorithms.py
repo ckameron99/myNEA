@@ -74,19 +74,16 @@ class NaiveMiniMax: #standard minimax algorithm
                     bestMoveValue=min(val,bestMoveValue)
         return bestMoveValue
 
-class MiniMax:
+class MiniMax(NaiveMiniMax):
     # identical to naive minimax, but preferes to win quickly and lose or draw over a longer time, in order to give maximum time for sub-optimal opponent to make a mistake that improves the AI's outcome
-    def __init__(self,board):
-        self.playerIndex=None
-        self.board=board
     def getMove(self,playerIndex):
+        self.winMoveDepth=maxDepth #the AI tries to minimise this
+        self.loseMoveDepth=0 #the AI tries to maximise this, and it also doubles as a drawing move depth
         maxDepth=-1
         for index, value in numpy.ndenumerate(self.board.cells):
             if self.board.cells[index]=="0.0":
                 maxDepth+=1
         self.maxDepth=maxDepth
-        self.winMoveDepth=maxDepth #the AI tries to minimise this
-        self.loseMoveDepth=0 #the AI tries to maximise this, and it also doubles as a drawing move depth
         self.playerIndex=playerIndex
         bestMoveValue,bestMoveLocation=-inf,None
         for index,value in numpy.ndenumerate(self.board.cells):
