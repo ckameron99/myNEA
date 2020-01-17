@@ -54,7 +54,8 @@ class MenuScreen(Screen):
         'NaiveMinimax':aiAlgorithms.NaiveMiniMax,
         'Minimax':aiAlgorithms.MiniMax,
         'NABPMM':aiAlgorithms.NABPMM,
-        'ABPMM':aiAlgorithms.ABPMM
+        'ABPMM':aiAlgorithms.ABPMM,
+        'Choose AI':aiAlgorithms.NoneAI
         }
         games={
         'NByN':NByN,
