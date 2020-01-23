@@ -1,4 +1,4 @@
 __pycache__/
 tester.py
 .buildozer/
-savedGames/
+savedGames/*
