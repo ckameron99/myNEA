@@ -362,7 +362,7 @@ class QuantumTicTacToe(NByN):
             winners=[]
             for player in self.collapsedBoard.players:
                 if self.collapsedBoard.checkWin(value=player.value):
-                    winners.append(symbol)
+                    winners.append(player.value)
             if len(winners)==1:
                 popup = Popup(title='Winner!',
                 content=Label(text="{} has won the game!".format(winners[0])),
