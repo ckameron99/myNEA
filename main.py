@@ -63,7 +63,8 @@ class MenuScreen(Screen):
         'Quantum':QuantumTicTacToe
         }
         #create the new game
-        self.game=games[type](name='game',w=self.yDim,h=self.xDim,ai=aiKey[self.dropdown.ids.mainbutton.text])
+        ai=aiKey[self.dropdown.ids.mainbutton.text]
+        self.game=games[type](name='game',w=self.yDim,h=self.xDim,ai=ai)
         #add the new game to the screen manager
         self.manager.add_widget(self.game)
         self.manager.transition.direction='left'
@@ -104,12 +105,14 @@ class NByN(Screen):
     def makeMove(self,instance):
         #when the user clicks on a tile, it calls this method, and passes the graphical tile through as 'instance', allowing aspects of the visual representation of that tile to be changed
         if self.board.cells[instance.xLoc][instance.yLoc]=="0.0": #This ensures that the board will only react if the tile is vacent
-            self.board.placeMove((instance.xLoc,instance.yLoc),self.board.players[self.board.currentPlayerNum].value) #Change the logical representation of the board to contain the new move
-            instance.text=str(self.board.players[self.board.currentPlayerNum].value) #Change the graphical representation of the board to contain the move, so that the user has feedback of their move
-            if self.board.checkWin(cells=self.board.cells,value=self.board.players[self.board.currentPlayerNum].value,nInARow=min(self.board.sizes)): #Check if the user has now won the game
+            location=(instance.xLoc,instance.yLoc)
+            value=self.board.players[self.board.currentPlayerNum].value
+            self.board.placeMove(location,value) #Change the logical representation of the board to contain the new move
+            instance.text=str(value) #Change the graphical representation of the board to contain the move, so that the user has feedback of their move
+            if self.board.checkWin(cells=self.board.cells,value=value,nInARow=min(self.board.sizes)): #Check if the user has now won the game
                 self.winner=self.board.currentPlayerNum
                 popup = Popup(title='Winner!',
-                content=Label(text="{} has won the game!".format(self.board.symbols[self.board.currentPlayerNum])),
+                content=Label(text="{} has won the game!".format(value)),
                 size_hint=(None, None), size=(400, 400))
                 popup.open()
                 return True
@@ -125,20 +128,23 @@ class NByN(Screen):
                 popup.open()
                 return True
             #change the player
-            self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
+            self.board.currentPlayerNum+=1
+            self.board.currentPlayerNum%=len(self.board.players)
             #get the move from the AI
             move=self.ai.getMove(self.board.currentPlayerNum) #if the game is in two player mode, then the move will be None
+            value=self.board.players[self.board.currentPlayerNum].value
             if move: #If the AI exists, then play the AI's move, otherwise, leave the incremented player to allow the second player to place their move
-                self.board.placeMove(move,self.board.players[self.board.currentPlayerNum].value) #Change the logical representation of the board to contain the new move
-                self.b[move[1]][move[0]].text=str(self.board.players[self.board.currentPlayerNum].value) #Change the graphical representation of the board to contain the move, so that the user has feedback of their move
-                if self.board.checkWin(cells=self.board.cells,value=self.board.players[self.board.currentPlayerNum].value,nInARow=min(self.board.sizes)): #Check if the AI has now won the game
+                self.board.placeMove(move,value) #Change the logical representation of the board to contain the new move
+                self.b[move[1]][move[0]].text=str(value) #Change the graphical representation of the board to contain the move, so that the user has feedback of their move
+                if self.board.checkWin(cells=self.board.cells,value=value,nInARow=min(self.board.sizes)): #Check if the AI has now won the game
                     self.winner=self.board.currentPlayerNum
                     popup = Popup(title='Winner!',
-                    content=Label(text="{} has won the game!".format(self.board.symbols[self.board.currentPlayerNum])),
+                    content=Label(text="{} has won the game!".format(value)),
                     size_hint=(None, None), size=(400, 400))
                     popup.open()
                     return True
-                self.board.currentPlayerNum=(self.board.currentPlayerNum+1)%len(self.board.players)
+                self.board.currentPlayerNum+=1
+                self.board.currentPlayerNum%=len(self.board.players)
                 #check for a draw, as if the user did not win, then there are no more empty cells left
                 emptyCells=0
                 for index,value in numpy.ndenumerate(self.board.cells):

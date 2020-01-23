@@ -31,9 +31,12 @@ class NaiveMiniMax: #standard minimax algorithm
         #as the ai is trying to maximise the reward, the current predicted reward is set to -infinity so that any move is better than that
         bestMoveValue,bestMoveLocation=-inf,None
         for index,value in numpy.ndenumerate(self.board.cells):
-            if self.board.cells[index]=="0.0":
-                self.board.cells[index]=self.board.players[self.playerIndex].value #try a particular move
-                val=self.minimax(maxDepth,(self.playerIndex+1)%len(self.board.players)) #check the expected reward of the move
+            if value=="0.0":
+                playerValue=self.board.players[self.playerIndex].value
+                self.board.cells[index]=playerValue #try a particular move
+                nextPlayerNum=self.playerIndex+1
+                nextPlayerNum%=len(self.board.players)
+                val=self.minimax(maxDepth,nextPlayerNum) #check the expected reward of the move
                 self.board.cells[index]="0.0" #return the board to the previous state before that move
                 if val>=bestMoveValue: #if the move has a better reward than the previous best move, then reassign the best move
                     bestMoveValue=val
@@ -56,20 +59,23 @@ class NaiveMiniMax: #standard minimax algorithm
         if emptyCells==0:
             return 0
         #recurse another move to find the expected reward from the non-terminal board state
+        nextPlayerNum=playerIndex+1
+        nextPlayerNum%=len(self.board.players)
+        playerValue=self.board.players[playerIndex].value
         if playerIndex==self.playerIndex: #maximising, as this is the AI's turn to make a move
             bestMoveValue=-inf
             for index,value in numpy.ndenumerate(self.board.cells):
                 if self.board.cells[index]=="0.0":
-                    self.board.cells[index]=self.board.players[playerIndex].value
-                    val=self.minimax(depth-1,(playerIndex+1)%len(self.board.players))
+                    self.board.cells[index]=playerValue
+                    val=self.minimax(depth-1,nextPlayerNum)
                     self.board.cells[index]="0.0"
                     bestMoveValue=max(val,bestMoveValue)
         else: #minimising reward, simulating a perfect opponent
             bestMoveValue=inf
             for index,value in numpy.ndenumerate(self.board.cells):
                 if self.board.cells[index]=="0.0":
-                    self.board.cells[index]=self.board.players[playerIndex].value
-                    val=self.minimax(depth-1,(playerIndex+1)%len(self.board.players))
+                    self.board.cells[index]=playerValue
+                    val=self.minimax(depth-1,nextPlayerNum)
                     self.board.cells[index]="0.0"
                     bestMoveValue=min(val,bestMoveValue)
         return bestMoveValue
@@ -86,10 +92,13 @@ class MiniMax(NaiveMiniMax):
         self.maxDepth=maxDepth
         self.playerIndex=playerIndex
         bestMoveValue,bestMoveLocation=-inf,None
+        playerValue=self.board.players[self.playerIndex].value
+        nextPlayerNum==self.playerIndex+1
+        nextPlayerNum%=len(self.board.players)
         for index,value in numpy.ndenumerate(self.board.cells):
             if self.board.cells[index]=="0.0":
-                self.board.cells[index]=self.board.players[self.playerIndex].value
-                val,moveDepth=self.minimax(maxDepth,(self.playerIndex+1)%len(self.board.players)) #also retrieve the amount of moves that will be played to achieve the reward following the move
+                self.board.cells[index]=playerValue
+                val,moveDepth=self.minimax(maxDepth,nextPlayerNum) #also retrieve the amount of moves that will be played to achieve the reward following the move
                 self.board.cells[index]="0.0"
                 if val>=bestMoveValue:
                     if val==-1 or val == 0: #if the AI can't currently win, then maximise the move depth
@@ -120,12 +129,15 @@ class MiniMax(NaiveMiniMax):
                 emptyCells+=1
         if emptyCells==0:
             return 0,0
+        nextPlayerNum=playerIndex+1
+        nextPlayerNum%=len(self.board.players)
+        playerValue=self.board.players[playerIndex].value
         if playerIndex==self.playerIndex:
             bestMoveValue=-inf
             for index,value in numpy.ndenumerate(self.board.cells):
                 if self.board.cells[index]=="0.0":
-                    self.board.cells[index]=self.board.players[playerIndex].value
-                    val,moveDepth=self.minimax(depth-1,(playerIndex+1)%len(self.board.players))
+                    self.board.cells[index]=playerValue
+                    val,moveDepth=self.minimax(depth-1,nextPlayerNum)
                     self.board.cells[index]="0.0"
                     if val>=bestMoveValue:
                         if val==-1 or val == 0:
@@ -144,8 +156,8 @@ class MiniMax(NaiveMiniMax):
             bestMoveValue=inf
             for index,value in numpy.ndenumerate(self.board.cells):
                 if self.board.cells[index]=="0.0":
-                    self.board.cells[index]=self.board.players[playerIndex].value
-                    val,moveDepth=self.minimax(depth-1,(playerIndex+1)%len(self.board.players))
+                    self.board.cells[index]=playerValue
+                    val,moveDepth=self.minimax(depth-1,nextPlayerNum)
                     self.board.cells[index]="0.0"
                     if val<=bestMoveValue:
                         if val==1 or val == 0:
@@ -174,10 +186,13 @@ class NABPMM:
         self.maxDepth=maxDepth
         self.playerIndex=playerIndex
         bestMoveValue,bestMoveLocation=-inf,None
+        playerValue=self.board.players[self.playerIndex].value
+        nextPlayerNum=self.playerIndex+1
+        nextPlayerNum%=len(self.board.players)
         for index,value in numpy.ndenumerate(self.board.cells):
             if self.board.cells[index]=="0.0":
-                self.board.cells[index]=self.board.players[self.playerIndex].value
-                val=self.abpmm(maxDepth,(self.playerIndex+1)%len(self.board.players),-inf,inf)
+                self.board.cells[index]=playerValue
+                val=self.abpmm(maxDepth,nextPlayerNum,-inf,inf)
                 self.board.cells[index]="0.0"
                 if val>=bestMoveValue:
                     bestMoveValue=val
@@ -198,12 +213,15 @@ class NABPMM:
                 emptyCells+=1
         if emptyCells==0:
             return 0
+        nextPlayerNum=playerIndex+1
+        nextPlayerNum%=len(self.board.players)
+        playerValue=self.board.players[playerIndex].value
         if playerIndex==self.playerIndex:
             bestMoveValue=-inf
             for index,value in numpy.ndenumerate(self.board.cells):
                 if self.board.cells[index]=="0.0":
-                    self.board.cells[index]=self.board.players[playerIndex].value
-                    val=self.abpmm(depth-1,(playerIndex+1)%len(self.board.players),alpha,beta)
+                    self.board.cells[index]=playerValue
+                    val=self.abpmm(depth-1,nextPlayerNum,alpha,beta)
                     self.board.cells[index]="0.0"
                     bestMoveValue=max(val,bestMoveValue)
                     alpha=max(alpha,bestMoveValue)
@@ -213,8 +231,8 @@ class NABPMM:
             bestMoveValue=inf
             for index,value in numpy.ndenumerate(self.board.cells):
                 if self.board.cells[index]=="0.0":
-                    self.board.cells[index]=self.board.players[playerIndex].value
-                    val=self.abpmm(depth-1,(playerIndex+1)%len(self.board.players),alpha,beta)
+                    self.board.cells[index]=playerValue
+                    val=self.abpmm(depth-1,nextPlayerNum,alpha,beta)
                     self.board.cells[index]="0.0"
                     bestMoveValue=min(val,bestMoveValue)
                     beta=min(beta,bestMoveValue)
@@ -236,10 +254,13 @@ class ABPMM:
         self.loseMoveDepth=0
         self.playerIndex=playerIndex
         bestMoveValue,bestMoveLocation=-inf,None
+        nextPlayerNum=playerIndex+1
+        nextPlayerNum%=len(self.board.players)
+        playerValue=self.board.players[playerIndex].value
         for index,value in numpy.ndenumerate(self.board.cells):
             if self.board.cells[index]=="0.0":
-                self.board.cells[index]=self.board.players[self.playerIndex].value
-                val,moveDepth=self.abpmm(maxDepth,(self.playerIndex+1)%len(self.board.players),-inf,inf)
+                self.board.cells[index]=playerValue
+                val,moveDepth=self.abpmm(maxDepth,nextPlayerNum,-inf,inf)
                 self.board.cells[index]="0.0"
                 if val>=bestMoveValue:
                     if val==-1 or val == 0:
@@ -270,12 +291,15 @@ class ABPMM:
                 emptyCells+=1
         if emptyCells==0:
             return 0,0
+        nextPlayerNum=playerIndex+1
+        nextPlayerNum%=len(self.board.players)
+        playerValue=self.board.players[playerIndex].value
         if playerIndex==self.playerIndex:
             bestMoveValue=-inf
             for index,value in numpy.ndenumerate(self.board.cells):
                 if self.board.cells[index]=="0.0":
-                    self.board.cells[index]=self.board.players[playerIndex].value
-                    val,moveDepth=self.abpmm(depth-1,(playerIndex+1)%len(self.board.players),alpha,beta)
+                    self.board.cells[index]=playerValue
+                    val,moveDepth=self.abpmm(depth-1,nextPlayerNum,alpha,beta)
                     self.board.cells[index]="0.0"
                     if val>=bestMoveValue:
                         if val==-1 or val == 0:
@@ -297,8 +321,8 @@ class ABPMM:
             bestMoveValue=inf
             for index,value in numpy.ndenumerate(self.board.cells):
                 if self.board.cells[index]=="0.0":
-                    self.board.cells[index]=self.board.players[playerIndex].value
-                    val,moveDepth=self.abpmm(depth-1,(playerIndex+1)%len(self.board.players),alpha,beta)
+                    self.board.cells[index]=playerValue
+                    val,moveDepth=self.abpmm(depth-1,nextPlayerNum,alpha,beta)
                     self.board.cells[index]="0.0"
                     if val<=bestMoveValue:
                         if val==1 or val == 0:
@@ -330,6 +354,8 @@ class Random:
         pass
     def getMove(self):
         while 1:
-            move=random.randint(0,functools.reduce(operator.mul,self.board.sizes)-1)
-            if self.board.cells[tuple([move%size for size in self.board.sizes])]=="0.0":
+            numCells=functools.reduce(operator.mul,self.board.sizes)
+            move=random.randint(0,numCells-1)
+            move=tuple([move%size for size in self.board.sizes])
+            if self.board.cells[move]=="0.0":
                 return tuple([move%size for size in self.board.sizes])

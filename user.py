@@ -21,9 +21,10 @@ class User:
     def authenticate(self,hash,pwd=None):
         if pwd==None:
             pwd=input("please enter your password to authenticate: ")
-        salt = hash[:64]
+        salt = hash[:64].encode("ascii")
         hash = hash[64:]
-        pwdhash = hashlib.pbkdf2_hmac('sha512', pwd.encode('utf-8'), salt.encode('ascii'), 100000)
+        pwd=pwd.encode("utf-8")
+        pwdhash = hashlib.pbkdf2_hmac('sha512', pwd, salt, 100000)
         pwdhash = binascii.hexlify(pwdhash).decode('ascii')
         return pwdhash == hash
 
@@ -31,7 +32,8 @@ class User:
         if newPwd==None:
             newPwd=input("please enter a new password: ")
         salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
-        pwdhash = hashlib.pbkdf2_hmac('sha512', newPwd.encode('utf-8'), salt, 100000)
+        newPwd=newPwd.encode('utf-8')
+        pwdhash = hashlib.pbkdf2_hmac('sha512', newPwd, salt, 100000)
         pwdhash = binascii.hexlify(pwdhash)
         return (salt + pwdhash).decode('ascii')
 
@@ -60,7 +62,13 @@ class User:
         self.DOB=DOB
         self.Kudos=0
         pwdHash=self.storePwd()
-        stmt=f"""INSERT INTO User (UserID,Forname,Surname,DOB,Kudos,Hash) VALUES ('{self.id}','{self.forname}','{self.surname}','{self.DOB}',{self.Kudos},'{pwdHash}')"""
+        stmt=f"""INSERT INTO User (UserID,Forname,Surname,DOB,Kudos,Hash)
+        VALUES ('{self.id}',
+        '{self.forname}',
+        '{self.surname}',
+        '{self.DOB}',
+        {self.Kudos},
+        '{pwdHash}')"""
         db.execute(stmt)
         db.commit()
         db.close()
