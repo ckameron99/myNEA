@@ -3,4 +3,4 @@ tester.py
 .buildozer/
 savedGames/*
 user.db
-!savedGames
+!savedGames/
