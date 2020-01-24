@@ -10,7 +10,6 @@ stmt='''CREATE TABLE User
     UserID INT PRIMARY KEY NOT NULL,
     Forename TEXT NOT NULL,
     Surname TEXT NOT NULL,
-    DOB TEXT,
     Kudos INT NOT NULL,
     Hash TEXT NOT NULL
     )'''

@@ -85,12 +85,10 @@ class MenuScreen(Screen):
         self.popup.dismiss()
 
     def login(self):
-        print("login")
         self.manager.transition.direction='down'
         self.manager.current ='login'
 
     def logout(self):
-        print("logout")
         self.ids.loginButton.text='Login'
         self.loginScreen.user=None
         self.ids.loginButton.on_press=self.login
@@ -136,7 +134,6 @@ class CreateUserScreen(Screen):
         self.username=''
         self.forename=''
         self.surname=''
-        self.DOB=''
         self.password=''
         self.confirmingPassword=''
         self.user=None
@@ -147,8 +144,6 @@ class CreateUserScreen(Screen):
         self.forename=forename
     def updateSurname(self,surname):
         self.surname=surname
-    def updateDOB(self,DOB):
-        self.DOB=DOB
     def updatePassword(self,password):
         self.password=password
         if self.password==self.confirmingPassword:
@@ -162,7 +157,7 @@ class CreateUserScreen(Screen):
         else:
             self.passwordConfirmed=False
     def createNewUser(self):
-        if self.forename and self.surname and self.DOB and self.password:
+        if self.forename and self.surname and self.password:
             if self.passwordConfirmed:
                 user=User(self.username,password=self.password)
                 if user.userFound:
@@ -172,7 +167,7 @@ class CreateUserScreen(Screen):
                     self.ids.messageBox.color=(0,1,0,1)
                     self.ids.messageBox.text='user created'
                     user=User(self.username)
-                    user.create(self.forename,self.surname,self.DOB,self.password)
+                    user.create(self.forename,self.surname,self.password)
             else:
                 self.ids.messageBox.color=(1,0,0,1)
                 self.ids.messageBox.text='passwords do not match'
