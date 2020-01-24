@@ -83,6 +83,77 @@ class MenuScreen(Screen):
     def dismissPopup(self):
         self.popup.dismiss()
 
+class LoginScreen(Screen):
+    def __init__(self,**kwargs):
+        super(LoginScreen,self).__init__(**kwargs)
+        self.username=''
+        self.password=''
+        self.user=None
+    def updateUsername(self,username):
+        self.username=username.replace("username: ","")
+    def updatePassword(self,password):
+        self.password=password.replace("password: ","")
+    def login(self):
+        user=User(self.username,password=self.password)
+        if user.loaded:
+            self.user=user
+            self.ids.messageBox.text=''
+            self.ids.box1.text=''
+            self.ids.box2.text=''
+            self.manager.transition.direction='up'
+            self.manager.current = 'menu'
+        else:
+            self.ids.messageBox.text='invalid username or password'
+
+class CreateUserScreen(Screen):
+    def __init__(self,**kwargs):
+        super(CreateUserScreen,self).__init__(**kwargs)
+        self.username=''
+        self.forename=''
+        self.surname=''
+        self.DOB=''
+        self.password=''
+        self.confirmingPassword=''
+        self.user=None
+        self.passwordConfirmed=False
+    def updateUsername(self,username):
+        self.username=username
+    def updateForename(self,forename):
+        self.forename=forename
+    def updateSurname(self,surname):
+        self.surname=surname
+    def updateDOB(self,DOB):
+        self.DOB=DOB
+    def updatePassword(self,password):
+        self.password=password
+        if self.password==self.confirmingPassword:
+            self.passwordConfirmed=True
+        else:
+            self.passwordConfirmed=False
+    def confirmPassword(self,password):
+        self.confirmingPassword=password
+        if self.password==self.confirmingPassword:
+            self.passwordConfirmed=True
+        else:
+            self.passwordConfirmed=False
+    def createNewUser(self):
+        if self.forename and self.surname and self.DOB and self.password:
+            if self.passwordConfirmed:
+                user=User(self.username,password=self.password)
+                if user.userFound:
+                    self.ids.messageBox.color=(1,0,0,1)
+                    self.ids.messageBox.text='user already exists'
+                else:
+                    self.ids.messageBox.color=(0,1,0,1)
+                    self.ids.messageBox.text='user created'
+                    user=User(self.username)
+                    user.create(self.forename,self.surname,self.DOB,self.password)
+            else:
+                self.ids.messageBox.color=(1,0,0,1)
+                self.ids.messageBox.text='passwords do not match'
+        else:
+            self.ids.messageBox.color=(1,0,0,1)
+            self.ids.messageBox.text='all fields are required to create a new user'
 
 class NByN(Screen):
     """The NByN class is a class which represents a tic tac toe game of custom dimensions, and is also used to represent a 3 by 3 game. The class will manage the flow of the game, and contain all the data structures needed to store the game state, and the AI, if present."""
@@ -474,7 +545,11 @@ class MainApp(App):
         sm = ScreenManager() #manages each screen that the user sees, such as the main menu and the game screen
         b=MenuScreen(name="menu")
         sm.add_widget(b)
+        b.loginScreen=LoginScreen(name='login')
+        b.createUserScreen=CreateUserScreen(name='createUser')
         sm.current='menu'
+        sm.add_widget(b.loginScreen)
+        sm.add_widget(b.createUserScreen)
         return sm
 
 def main():

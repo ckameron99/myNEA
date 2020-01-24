@@ -1,22 +1,18 @@
 import sqlite3, hashlib, binascii, os
 class User:
-    def __init__(self,id,forname=None,surname=None,DOB=None):
+    def __init__(self,id,forename=None,surname=None,DOB=None,password=None):
         self.id=id
         db=sqlite3.connect("user.db")
-        stmt=f"SELECT * FROM User WHERE UserID='{self.id}'"
-        results=[result for result in db.execute(stmt)]
+        stmt=f"SELECT * FROM User WHERE UserID=?"
+        results=[result for result in db.execute(stmt,(self.id,))]
         db.close()
         if len(results)==0:
-            if forname==None:
-                forname=input("please enter your forname: ")
-            if surname==None:
-                surname=input("please enter your surname: ")
-            if DOB==None:
-                DOB=input("please enter your DOB: ")
-            self.create(forname,surname,DOB)
+            self.loaded= False
+            self.userFound=False
         else:
+            self.userFound=True
             user=results[0]
-            self.load(user)
+            self.loaded= self.load(user,password)
 
     def authenticate(self,hash,pwd=None):
         if pwd==None:
@@ -37,45 +33,42 @@ class User:
         pwdhash = binascii.hexlify(pwdhash)
         return (salt + pwdhash).decode('ascii')
 
-    def load(self,user):
-        if self.authenticate(user[5]):
-            self.forname=user[1]
+    def load(self,user,password):
+        if self.authenticate(user[5],password):
+            self.forename=user[1]
             self.surname=user[2]
             self.DOB=user[3]
             self.Kudos=user[4]
+            self._hash=user[5]
+            return True
         else:
-            self.authenticationError("Invalid username or password!")
+            return False
 
     def authenticationError(self,error):
         raise NotImplementedError(error)
 
-    def create(self,forname=None,surname=None,DOB=None):
+    def create(self,forename=None,surname=None,DOB=None,password=None):
         db=sqlite3.connect("user.db")
-        if forname==None:
-            forname=input("please enter your forname: ")
+        if forename==None:
+            forename=input("please enter your forename: ")
         if surname==None:
             surname=input("please enter your surname: ")
         if DOB==None:
             DOB=input("please enter your DOB: ")
-        self.forname=forname
+        self.forename=forename
         self.surname=surname
         self.DOB=DOB
         self.Kudos=0
-        pwdHash=self.storePwd()
-        stmt=f"""INSERT INTO User (UserID,Forname,Surname,DOB,Kudos,Hash)
-        VALUES ('{self.id}',
-        '{self.forname}',
-        '{self.surname}',
-        '{self.DOB}',
-        {self.Kudos},
-        '{pwdHash}')"""
-        db.execute(stmt)
+        pwdHash=self.storePwd(password)
+        stmt=f"""INSERT INTO User (UserID,forename,Surname,DOB,Kudos,Hash)
+        VALUES (?,?,?,?,?,?)"""
+        db.execute(stmt,(self.id,self.forename,self.surname,self.DOB,self.Kudos,pwdHash))
         db.commit()
         db.close()
 
     def save(self,id):
         db=sqlite3.connect("user.db")
-        stmt="UPDATE User set Forname = {self.forname} WHERE UserID={self.id}"
+        stmt="UPDATE User set forename = {self.forename} WHERE UserID={self.id}"
         db.execute(stmt)
         stmt="UPDATE User set Surname = {self.surname} WHERE UserID={self.id}"
         db.execute(stmt)
