@@ -39,6 +39,7 @@ class MenuScreen(Screen):
         self.dropdown=CustomDropDown()
         self.add_widget(self.dropdown)
         self.dropdown.ids.dropdown.dismiss()
+        self.ids.loginButton.on_press=self.login
 
     def update(self,x,y):
         #update the dimensions of the n by n tic tac toe board
@@ -83,12 +84,25 @@ class MenuScreen(Screen):
     def dismissPopup(self):
         self.popup.dismiss()
 
+    def login(self):
+        print("login")
+        self.manager.transition.direction='down'
+        self.manager.current ='login'
+
+    def logout(self):
+        print("logout")
+        self.ids.loginButton.text='Login'
+        self.loginScreen.user=None
+        self.ids.loginButton.on_press=self.login
+
+
 class LoginScreen(Screen):
-    def __init__(self,**kwargs):
+    def __init__(self,menu,**kwargs):
         super(LoginScreen,self).__init__(**kwargs)
         self.username=''
         self.password=''
         self.user=None
+        self.menu=menu
     def updateUsername(self,username):
         self.username=username.replace("username: ","")
     def updatePassword(self,password):
@@ -100,10 +114,21 @@ class LoginScreen(Screen):
             self.ids.messageBox.text=''
             self.ids.box1.text=''
             self.ids.box2.text=''
+            self.menu.ids.loginButton.text='Logout ({})'.format(user.id)
             self.manager.transition.direction='up'
             self.manager.current = 'menu'
+            self.menu.ids.loginButton.on_press=self.menu.logout
         else:
             self.ids.messageBox.text='invalid username or password'
+
+    def logout(self):
+        self.menu.ids.loginButton.text='Login'
+        self.user=None
+        self.manager.current='menu'
+        self.menu.ids.loginButton.on_press=self.login
+    #def login(self):
+    #    self.manager.transition.direction='down'
+    #    self.manager.current ='login'
 
 class CreateUserScreen(Screen):
     def __init__(self,**kwargs):
@@ -545,7 +570,7 @@ class MainApp(App):
         sm = ScreenManager() #manages each screen that the user sees, such as the main menu and the game screen
         b=MenuScreen(name="menu")
         sm.add_widget(b)
-        b.loginScreen=LoginScreen(name='login')
+        b.loginScreen=LoginScreen(b,name='login')
         b.createUserScreen=CreateUserScreen(name='createUser')
         sm.current='menu'
         sm.add_widget(b.loginScreen)

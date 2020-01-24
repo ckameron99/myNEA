@@ -31,12 +31,10 @@
         on_press: root.startUltimate()
 
     Button:
+        id: loginButton
         size_hint: 0.2,0.1
         pos_hint: {"center_x": 0.13, "center_y": 0.9}
         text: 'Login'
-        on_press:
-            root.manager.transition.direction='down'
-            root.manager.current ='login'
 
 <LoginScreen>:
     BoxLayout:
@@ -130,17 +128,6 @@
             text: ''
             multiline: False
             on_text_validate: root.updateSurname(self.text)
-
-        Label:
-            text: 'DOB (dd/mm/yyyy): '
-            text_size: self.size
-            halign: 'left'
-            valign: 'bottom'
-        TextInput:
-            id: box4
-            text: ''
-            multiline: False
-            on_text_validate: root.updateDOB(self.text)
 
         Label:
             text: 'password: '
