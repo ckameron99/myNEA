@@ -1,11 +1,10 @@
 <MenuScreen>:
     BoxLayout:
-        size_hint: None, None
-        size: min(root.width - 100, 200), 100
+        size_hint: 0.3, 0.2
         pos_hint: {"center_x": 0.5, "center_y": 0.7}
         Button:
             text: 'Start'
-            size_hint: 2,None
+            size_hint: 2,1
             on_press: root.startNByN()
         TextInput:
             text: '3'
@@ -17,16 +16,14 @@
             on_text_validate: root.update(None,self.text)
 
     Button:
-        size_hint: None,None
-        size: 100,100
-        pos_hint: {"center_x":0.25,"center_y":0.7}
+        size_hint: 0.2, 0.2
+        pos_hint: {"center_x":0.2,"center_y":0.7}
         text: 'Quantum'
         on_press: root.startQuantum()
 
     Button:
-        size_hint: None,None
-        size: 100,100
-        pos_hint: {"center_x":0.75,"center_y":0.7}
+        size_hint: 0.2, 0.2
+        pos_hint: {"center_x":0.8,"center_y":0.7}
         text: 'Ultimate'
         on_press: root.startUltimate()
 
@@ -186,9 +183,7 @@
 
 <CustomDropDown>:
     refresh: dropdown.__self__
-    size_hint:None,None
-    height: '48dp'
-    width: '300dp'
+    size_hint:0.3,0.08
     pos_hint: {"center_x":0.5,"center_y":0.5}
     Button:
         id: mainbutton
@@ -199,27 +194,27 @@
         on_select: mainbutton.text = '{}'.format(args[1])
         Button:
             size_hint_y: None
-            height:44
+            height:root.height
             text: 'Two Player'
             on_release: dropdown.select('None')
         Button:
             size_hint_y: None
-            height:44
+            height:root.height
             text: 'Naive Minimax'
             on_release: dropdown.select('NaiveMinimax')
         Button:
             size_hint_y: None
-            height:44
+            height:root.height
             text: 'Minimax'
             on_release: dropdown.select('Minimax')
         Button:
             size_hint_y: None
-            height:44
+            height:root.height
             text: 'Naive Minimax with Alpha Beta Pruning'
             on_release: dropdown.select('NABPMM')
         Button:
             size_hint_y: None
-            height:44
+            height:root.height
             text: 'Minimax with Alpha Beta Pruning'
             on_release: dropdown.select('ABPMM')
 
@@ -234,11 +229,8 @@
         cols: root.w
 
     BoxLayout:
-        size_hint: None,None
-        size: 300,50
-        #pos_hint: {"x":0.03,"top":0.97}
-        x: max(10,root.width/100*3)
-        top: root.height- max(10,root.height/100*3)
+        size_hint: 0.4,0.08
+        pos_hint: {"x":0.03,"top":0.97}
         Button:
             text: 'Back to menu'
             on_press:

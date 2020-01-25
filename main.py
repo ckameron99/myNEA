@@ -213,7 +213,7 @@ class NByN(Screen):
                 self.winner=self.board.currentPlayerNum
                 popup = Popup(title='Winner!',
                 content=Label(text="{} has won the game!".format(name)),
-                size_hint=(None, None), size=(400, 400))
+                size_hint=(None, None), size=(max(min(self.width,self.height)/3*2,200),max(min(self.width,self.height)/3*2,200)))
                 popup.open()
                 return True
             #check for a draw, as if the user did not win, then there are no more empty cells left
@@ -224,7 +224,7 @@ class NByN(Screen):
             if emptyCells==0:
                 popup = Popup(title='Draw!',
                 content=Label(text="Neither player has won the game!"),
-                size_hint=(None, None), size=(400, 400))
+                size_hint=(None, None), size=(max(min(self.width,self.height)/3*2,200),max(min(self.width,self.height)/3*2,200)))
                 popup.open()
                 return True
             #change the player
@@ -240,7 +240,7 @@ class NByN(Screen):
                     self.winner=self.board.currentPlayerNum
                     popup = Popup(title='Winner!',
                     content=Label(text="{} has won the game!".format(name)),
-                    size_hint=(None, None), size=(400, 400))
+                    size_hint=(None, None), size=(max(min(self.width,self.height)/3*2,200),max(min(self.width,self.height)/3*2,200)))
                     popup.open()
                     return True
                 self.board.currentPlayerNum+=1
@@ -253,7 +253,7 @@ class NByN(Screen):
                 if emptyCells==0:
                     popup = Popup(title='Draw!',
                     content=Label(text="Neither player has won the game!"),
-                    size_hint=(None, None), size=(400, 400))
+                    size_hint=(None, None), size=(max(min(self.width,self.height)/3*2,200),max(min(self.width,self.height)/3*2,200)))
                     popup.open()
                     return True
 
@@ -350,7 +350,7 @@ class UltimateTicTacToe(NByN):
                     self.winner=self.mainBoard.currentPlayerNum
                     popup = Popup(title='Winner!',
                     content=Label(text="{} has won the game!".format(name)),
-                    size_hint=(None, None), size=(400, 400))
+                    size_hint=(None, None), size=(max(min(self.width,self.height)/3*2,200),max(min(self.width,self.height)/3*2,200)))
                     popup.open()
                     return True
             self.mainBoard.currentPlayerNum=(self.mainBoard.currentPlayerNum+1)%len(self.mainBoard.players)
@@ -471,12 +471,12 @@ class QuantumTicTacToe(NByN):
             if len(winners)==1:
                 popup = Popup(title='Winner!',
                 content=Label(text="{} has won the game!".format(winners[0])),
-                size_hint=(None, None), size=(400, 400))
+                size_hint=(None, None), size=(max(min(self.width,self.height)/3*2,200),max(min(self.width,self.height)/3*2,200)))
                 popup.open()
             elif len(winners)>1: #when the board collapses, both players can gain a row of three moves, which still results in a draw
                 popup = Popup(title='Draw!',
                 content=Label(text="The board was collapsed so that several\npeople have winning moves."),
-                size_hint=(None, None), size=(400, 400))
+                size_hint=(None, None), size=(max(min(self.width,self.height)/3*2,200),max(min(self.width,self.height)/3*2,200)))
                 popup.open()
         #create and open a popup asking how the board should collapse
         firstMove=Button(text="First move")
@@ -484,7 +484,7 @@ class QuantumTicTacToe(NByN):
         box=BoxLayout()
         box.add_widget(firstMove)
         box.add_widget(notFirstMove)
-        self.popup=Popup(title="Collapsing menu",content=box,auto_dismiss=False,size_hint=(None,None),size=(300,100),pos_hint={'top':1})
+        self.popup=Popup(title="Collapsing menu",content=box,auto_dismiss=False,size_hint=(0.5,0.2),pos_hint={'top':1})
         firstMove.bind(on_press=firstMoveCollapse)
         notFirstMove.bind(on_press=secondMoveCollapse)
         self.popup.open()
