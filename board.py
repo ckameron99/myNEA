@@ -27,7 +27,9 @@ class Board:
         return self.winnerIndex
 
     def setWinner(self, value): #only needs to be used with ultimate tic tac toe
-        self.winnerIndex = self.symbols.index(value)
+        for index,player in enumerate(self.players):
+            if player.value==value:
+                self.winnerIndex=index
 
     def placeMove(self, coordinates, value):
         if self.winnerIndex == -1:

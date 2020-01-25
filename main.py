@@ -133,17 +133,6 @@ class LoginScreen(Screen):
         else:
             self.ids.messageBox.text='invalid username or password'
 
-    '''def logout(self):
-        self.menu.ids.loginButton1.text='Login (Guest 1)'
-        self.user=None
-        self.manager.current='menu'
-        self.menu.ids.loginButton1.on_press=self.login1
-
-    def logout(self):
-        self.menu.ids.loginButton2.text='Login (Guest 2)'
-        self.user=None
-        self.manager.current='menu'
-        self.menu.ids.loginButton2.on_press=self.login2'''
 
 class CreateUserScreen(Screen):
     def __init__(self,**kwargs):
@@ -330,12 +319,14 @@ class SaveDialog(FloatLayout):
 class UltimateTicTacToe(NByN):
     """The NByN class is a class which represents an ultimate game of tic tac toe. The class will manage the flow of the game, and contain all the data structures needed to store the game state."""
     grid=ObjectProperty(None)
-    def __init__(self,w=3,h=3,ai=None,**kwargs):
+    def __init__(self,w=3,h=3,ai=None,user1=None,user2=None,**kwargs):
         self.w=9
-        self.mainBoard=Board(dimensions=[w,h]) #represents the board of won subboards
+        self.user1=user1
+        self.user2=user2
+        self.mainBoard=Board(dimensions=[w,h],user1=user1,user2=user2) #represents the board of won subboards
         self.subBoards=numpy.ndarray((3,3),dtype=numpy.dtype(Board)) #contains all the subboards in the same shape as the board of won subboards
         for index,x in numpy.ndenumerate(self.subBoards):
-            self.subBoards[index]=Board(dimensions=[3,3])
+            self.subBoards[index]=Board(dimensions=[3,3],user1=user1,user2=user2)
         self.ai=ai(self.mainBoard)
         super(NByN,self).__init__(**kwargs)
         for cellNum in range(81): #create the 9x9 ((3x3)x3x3)
@@ -348,6 +339,7 @@ class UltimateTicTacToe(NByN):
             self.grid.add_widget(tile)
 
     def makeMove(self,instance):
+        name=self.mainBoard.players[self.mainBoard.currentPlayerNum].name
         if self.subBoards[instance.mainBoardX][instance.mainBoardY].cells[instance.subBoardX][instance.subBoardY]=="0.0" and self.subBoards[instance.mainBoardX][instance.mainBoardY].winnerIndex==-1: #only make the move if the cell is empty and the subboard that the cell belongs to has not already been won
             instance.text=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value) #change the GUI to reflect the player's move
             self.subBoards[instance.mainBoardX][instance.mainBoardY].placeMove((instance.subBoardX,instance.subBoardY),str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)) #change the logical representation of the game to reflect the move
@@ -357,7 +349,7 @@ class UltimateTicTacToe(NByN):
                 if self.mainBoard.checkWin(value=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)):
                     self.winner=self.mainBoard.currentPlayerNum
                     popup = Popup(title='Winner!',
-                    content=Label(text="{} has won the game!".format(self.board.symbols[self.board.currentPlayerNum])),
+                    content=Label(text="{} has won the game!".format(name)),
                     size_hint=(None, None), size=(400, 400))
                     popup.open()
                     return True
