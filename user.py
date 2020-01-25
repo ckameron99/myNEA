@@ -2,6 +2,7 @@ import sqlite3, hashlib, binascii, os
 class User:
     def __init__(self,id,forename=None,surname=None,password=None):
         self.id=id
+        self.symbol=self.id[:2]
         db=sqlite3.connect("user.db")
         stmt=f"SELECT * FROM User WHERE UserID=?"
         results=[result for result in db.execute(stmt,(self.id,))]

@@ -4,15 +4,19 @@ import itertools
 
 
 class Board:
-    def __init__(self, dimensions=[3, 3], numPlayers=2):
+    def __init__(self, dimensions=[3, 3], numPlayers=2,user1=None,user2=None):
         self.cells = numpy.zeros(dimensions)
         self.cells = self.cells.astype("U")
         self.dimensions = len(dimensions)
         self.sizes = dimensions
         self.players = []
+        users=[user1,user2]
         self.symbols = ["X", "O", "V", "P"]
         for i in range(numPlayers):
-            self.players.append(Player(self, self.symbols[i]))
+            if users[i] is None:
+                self.players.append(Player(self, self.symbols[i]))
+            else:
+                self.players.append(Player(self, users[i].symbol, users[i]))
         self.currentPlayerNum = 0
         self.winnerIndex = -1
 
@@ -80,6 +84,11 @@ class Board:
         return False
 
 class Player:
-    def __init__(self, board, value):
+    def __init__(self, board, value,user=None):
         self.board = board
         self.value = value
+        self.user=user
+        if user is not None:
+            self.name=user.forename
+        else:
+            self.name=self.value

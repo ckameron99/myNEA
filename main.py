@@ -39,7 +39,8 @@ class MenuScreen(Screen):
         self.dropdown=CustomDropDown()
         self.add_widget(self.dropdown)
         self.dropdown.ids.dropdown.dismiss()
-        self.ids.loginButton.on_press=self.login
+        self.ids.loginButton1.on_press=self.login1
+        self.ids.loginButton2.on_press=self.login2
 
     def update(self,x,y):
         #update the dimensions of the n by n tic tac toe board
@@ -65,7 +66,7 @@ class MenuScreen(Screen):
         }
         #create the new game
         ai=aiKey[self.dropdown.ids.mainbutton.text]
-        self.game=games[type](name='game',w=self.yDim,h=self.xDim,ai=ai)
+        self.game=games[type](name='game',w=self.yDim,h=self.xDim,ai=ai,user1=self.loginScreen1.user,user2=self.loginScreen2.user)
         #add the new game to the screen manager
         self.manager.add_widget(self.game)
         self.manager.transition.direction='left'
@@ -84,49 +85,65 @@ class MenuScreen(Screen):
     def dismissPopup(self):
         self.popup.dismiss()
 
-    def login(self):
+    def login1(self):
         self.manager.transition.direction='down'
-        self.manager.current ='login'
+        self.manager.current ='login1'
 
-    def logout(self):
-        self.ids.loginButton.text='Login'
-        self.loginScreen.user=None
-        self.ids.loginButton.on_press=self.login
+    def login2(self):
+        self.manager.transition.direction='down'
+        self.manager.current ='login2'
+
+    def logout1(self):
+        self.ids.loginButton1.text='Login (Guest 1)'
+        self.loginScreen1.user=None
+        self.ids.loginButton1.on_press=self.login1
+
+    def logout2(self):
+        self.ids.loginButton2.text='Login (Guest 2)'
+        self.loginScreen2.user=None
+        self.ids.loginButton2.on_press=self.login2
 
 
 class LoginScreen(Screen):
-    def __init__(self,menu,**kwargs):
+    def __init__(self,menu,number,**kwargs):
         super(LoginScreen,self).__init__(**kwargs)
         self.username=''
         self.password=''
         self.user=None
         self.menu=menu
+        self.number=number
     def updateUsername(self,username):
         self.username=username.replace("username: ","")
     def updatePassword(self,password):
         self.password=password.replace("password: ","")
     def login(self):
         user=User(self.username,password=self.password)
+        loginButtons=[self.menu.ids.loginButton1,self.menu.ids.loginButton2]
+        logouts=[self.menu.logout1,self.menu.logout2]
         if user.loaded:
             self.user=user
             self.ids.messageBox.text=''
             self.ids.box1.text=''
             self.ids.box2.text=''
-            self.menu.ids.loginButton.text='Logout ({})'.format(user.id)
+            loginButtons[self.number-1].text='Logout ({})'.format(user.id)
             self.manager.transition.direction='up'
             self.manager.current = 'menu'
-            self.menu.ids.loginButton.on_press=self.menu.logout
+            loginButtons[self.number-1].on_press=logouts[self.number-1]
+
         else:
             self.ids.messageBox.text='invalid username or password'
 
-    def logout(self):
-        self.menu.ids.loginButton.text='Login'
+    '''def logout(self):
+        self.menu.ids.loginButton1.text='Login (Guest 1)'
         self.user=None
         self.manager.current='menu'
-        self.menu.ids.loginButton.on_press=self.login
-    #def login(self):
-    #    self.manager.transition.direction='down'
-    #    self.manager.current ='login'
+        self.menu.ids.loginButton1.on_press=self.login1
+
+    def logout(self):
+        self.menu.ids.loginButton2.text='Login (Guest 2)'
+        self.user=None
+        self.manager.current='menu'
+        self.menu.ids.loginButton2.on_press=self.login2'''
 
 class CreateUserScreen(Screen):
     def __init__(self,**kwargs):
@@ -178,13 +195,15 @@ class CreateUserScreen(Screen):
 class NByN(Screen):
     """The NByN class is a class which represents a tic tac toe game of custom dimensions, and is also used to represent a 3 by 3 game. The class will manage the flow of the game, and contain all the data structures needed to store the game state, and the AI, if present."""
     grid=ObjectProperty(None)
-    def __init__(self,w,h,ai,**kwargs):
+    def __init__(self,w,h,ai,user1,user2,**kwargs):
         self.b=[]
         self.w=w
         self.h=h
         self.winner=None
-        self.board=Board(dimensions=[w,h])
+        self.board=Board(dimensions=[w,h],user1=user1,user2=user2)
         self.ai=ai(self.board)
+        self.user1=user1
+        self.user2=user2
         super(NByN,self).__init__(**kwargs)
         for y in range(h):
             self.b.append([])
@@ -198,12 +217,13 @@ class NByN(Screen):
         if self.board.cells[instance.xLoc][instance.yLoc]=="0.0": #This ensures that the board will only react if the tile is vacent
             location=(instance.xLoc,instance.yLoc)
             value=self.board.players[self.board.currentPlayerNum].value
+            name=self.board.players[self.board.currentPlayerNum].name
             self.board.placeMove(location,value) #Change the logical representation of the board to contain the new move
             instance.text=str(value) #Change the graphical representation of the board to contain the move, so that the user has feedback of their move
             if self.board.checkWin(cells=self.board.cells,value=value,nInARow=min(self.board.sizes)): #Check if the user has now won the game
                 self.winner=self.board.currentPlayerNum
                 popup = Popup(title='Winner!',
-                content=Label(text="{} has won the game!".format(value)),
+                content=Label(text="{} has won the game!".format(name)),
                 size_hint=(None, None), size=(400, 400))
                 popup.open()
                 return True
@@ -230,7 +250,7 @@ class NByN(Screen):
                 if self.board.checkWin(cells=self.board.cells,value=value,nInARow=min(self.board.sizes)): #Check if the AI has now won the game
                     self.winner=self.board.currentPlayerNum
                     popup = Popup(title='Winner!',
-                    content=Label(text="{} has won the game!".format(value)),
+                    content=Label(text="{} has won the game!".format(name)),
                     size_hint=(None, None), size=(400, 400))
                     popup.open()
                     return True
@@ -565,10 +585,12 @@ class MainApp(App):
         sm = ScreenManager() #manages each screen that the user sees, such as the main menu and the game screen
         b=MenuScreen(name="menu")
         sm.add_widget(b)
-        b.loginScreen=LoginScreen(b,name='login')
+        b.loginScreen1=LoginScreen(b,name='login1',number=1)
+        b.loginScreen2=LoginScreen(b,name='login2',number=2)
         b.createUserScreen=CreateUserScreen(name='createUser')
         sm.current='menu'
-        sm.add_widget(b.loginScreen)
+        sm.add_widget(b.loginScreen1)
+        sm.add_widget(b.loginScreen2)
         sm.add_widget(b.createUserScreen)
         return sm
 
