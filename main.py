@@ -402,11 +402,13 @@ class QuantumTicTacToe(NByN):
             yield id
             id+=1
 
-    def __init__(self,w=3,h=3,ai=None,**kwargs):
+    def __init__(self,w=3,h=3,ai=None,user1=None,user2=None,**kwargs):
         self.w=w
         self.moveNumber=1
+        self.user1=user1
+        self.user2=user2
         self.firstMove=True #used to keep track of which move each player is on, as each turn each player places two moves
-        self.collapsedBoard=Board(dimensions=[3,3]) #track the collapsed moves, to detect a win
+        self.collapsedBoard=Board(dimensions=[3,3],user1=user1,user2=user2) #track the collapsed moves, to detect a win
         self.superPositionBoard=numpy.ndarray((3,3),dtype=numpy.dtype(self.QuantumTile)) #used to contain the quantum tiles, which manage the GUI aspect of the cells, and track the entanglementes between themselves
         gen=self.seq()
         self.ai=ai(self.collapsedBoard)
@@ -430,11 +432,11 @@ class QuantumTicTacToe(NByN):
                 self.firstMove^=1 #change to second move
                 self.firstMoveX=instance.xLoc
                 self.firstMoveY=instance.yLoc
-                instance.text+="{}{} ".format(self.collapsedBoard.symbols[self.collapsedBoard.currentPlayerNum],self.moveNumRepr(self.moveNumber)) #add the first move to the GUI
+                instance.text+="{}{} ".format(self.collapsedBoard.players[self.collapsedBoard.currentPlayerNum].value,self.moveNumRepr(self.moveNumber)) #add the first move to the GUI
             else:
                 if not (instance.xLoc==self.firstMoveX and instance.yLoc==self.firstMoveY): #ensure that the player does not place both their moves in the same cell
                     self.firstMove^=1 #change back to first move
-                    instance.text+="{}{} ".format(self.collapsedBoard.symbols[self.collapsedBoard.currentPlayerNum],self.moveNumRepr(self.moveNumber)) #add the second move to the GUI
+                    instance.text+="{}{} ".format(self.collapsedBoard.players[self.collapsedBoard.currentPlayerNum].value,self.moveNumRepr(self.moveNumber)) #add the second move to the GUI
                     if instance.text.count(" ")%3==0:
                         instance.text+="\n"
                     #check for cyclic entanglements, as cycles necessitate a collapse
@@ -465,7 +467,7 @@ class QuantumTicTacToe(NByN):
             winners=[]
             for player in self.collapsedBoard.players:
                 if self.collapsedBoard.checkWin(value=player.value):
-                    winners.append(player.value)
+                    winners.append(player.name)
             if len(winners)==1:
                 popup = Popup(title='Winner!',
                 content=Label(text="{} has won the game!".format(winners[0])),
@@ -551,7 +553,7 @@ class QuantumTicTacToe(NByN):
 
         def collapse(self,collapsingMoveNumber): #collapse the tile
             self.collapsed=True
-            self.guiTile.text="{}{}".format(self.game.collapsedBoard.symbols[(collapsingMoveNumber-1)%len(self.game.collapsedBoard.players)],self.game.moveNumRepr(collapsingMoveNumber))
+            self.guiTile.text="{}{}".format(self.game.collapsedBoard.players[(collapsingMoveNumber-1)%len(self.game.collapsedBoard.players)].value,self.game.moveNumRepr(collapsingMoveNumber))
             self.guiTile.font_size="45sp"
             for moveNumber,tile in self.quantumStates.items():
                 if moveNumber!=collapsingMoveNumber:
