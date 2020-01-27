@@ -24,6 +24,9 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.dropdown import DropDown
 from kivy.properties import ObjectProperty,NumericProperty
 
+import installer
+installer.init()
+
 
 class CustomDropDown(BoxLayout):
     pass
