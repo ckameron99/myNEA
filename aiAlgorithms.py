@@ -279,12 +279,6 @@ class ABPMM:
     def abpmm(self,depth,playerIndex,alpha,beta):
         winMoveDepth=self.maxDepth
         loseMoveDepth=0
-        for player in self.board.players:
-            if self.board.checkWin(value=player.value):
-                if playerIndex!=self.playerIndex:
-                    return 1,0
-                else:
-                    return -1,0
         emptyCells=0
         for index,value in numpy.ndenumerate(self.board.cells):
             if value=="0.0":
@@ -298,8 +292,12 @@ class ABPMM:
             bestMoveValue=-inf
             for index,value in numpy.ndenumerate(self.board.cells):
                 if self.board.cells[index]=="0.0":
+                    val,moveDepth=None,None
                     self.board.cells[index]=playerValue
-                    val,moveDepth=self.abpmm(depth-1,nextPlayerNum,alpha,beta)
+                    if self.board.checkWin(value=playerValue):
+                        val,moveDepth= 1,0
+                    if val is None:
+                        val,moveDepth=self.abpmm(depth-1,nextPlayerNum,alpha,beta)
                     self.board.cells[index]="0.0"
                     if val>=bestMoveValue:
                         if val==-1 or val == 0:
@@ -321,8 +319,12 @@ class ABPMM:
             bestMoveValue=inf
             for index,value in numpy.ndenumerate(self.board.cells):
                 if self.board.cells[index]=="0.0":
+                    val,moveDepth=None,None
                     self.board.cells[index]=playerValue
-                    val,moveDepth=self.abpmm(depth-1,nextPlayerNum,alpha,beta)
+                    if self.board.checkWin(value=playerValue):
+                        val,moveDepth= -1,0
+                    if val is None:
+                        val,moveDepth=self.abpmm(depth-1,nextPlayerNum,alpha,beta)
                     self.board.cells[index]="0.0"
                     if val<=bestMoveValue:
                         if val==1 or val == 0:
