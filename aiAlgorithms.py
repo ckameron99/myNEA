@@ -350,14 +350,41 @@ class MCTS:
     def __init__(self):
         pass
 
+class Difficulty:
+    def __init__(self,board):
+        self.board=board
+        self._setDifficulty_()
+        self.randomAI=Random(self.board)
+        self.perfectAI=ABPMM(self.board)
+    def _setDifficulty_(self):
+        self.difficulty=None
+    def getMove(self,playerIndex):
+        if random.random()>self.difficulty:
+            return self.randomAI.getMove(playerIndex)
+        else:
+            return self.perfectAI.getMove(playerIndex)
+
+class Easy(Difficulty):
+    def _setDifficulty_(self):
+        self.difficulty=0.6
+
+class Medium(Difficulty):
+    def _setDifficulty_(self):
+        self.difficulty=0.9
+
+class Hard(Difficulty):
+    def _setDifficulty_(self):
+        self.difficulty=0.95
 
 class Random:
     def __init__(self,board):
-        pass
-    def getMove(self):
+        self.board=board
+    def getMove(self,playerIndex):
         while 1:
-            numCells=functools.reduce(operator.mul,self.board.sizes)
-            move=random.randint(0,numCells-1)
-            move=tuple([move%size for size in self.board.sizes])
+            move=[]
+            for size in self.board.sizes:
+                location=random.randint(0,size-1)
+                move.append(location)
+            move=tuple(move)
             if self.board.cells[move]=="0.0":
-                return tuple([move%size for size in self.board.sizes])
+                return move

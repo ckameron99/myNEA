@@ -183,7 +183,7 @@
 
 <CustomDropDown>:
     refresh: dropdown.__self__
-    size_hint:0.3,0.08
+    size_hint:0.3,0.07
     pos_hint: {"center_x":0.5,"center_y":0.5}
     Button:
         id: mainbutton
@@ -200,22 +200,27 @@
         Button:
             size_hint_y: None
             height:root.height
-            text: 'Naive Minimax'
-            on_release: dropdown.select('NaiveMinimax')
+            text: 'Random'
+            on_release: dropdown.select('Random')
+        Button:
+            size_hint_y: None
+            height:root.height
+            text: 'Easy'
+            on_release: dropdown.select('Easy')
+        Button:
+            size_hint_y: None
+            height:root.height
+            text: 'Medium'
+            on_release: dropdown.select('Medium')
+        Button:
+            size_hint_y: None
+            height:root.height
+            text: 'Hard'
+            on_release: dropdown.select('Hard')
         Button:
             size_hint_y: None
             height:root.height
             text: 'Minimax'
-            on_release: dropdown.select('Minimax')
-        Button:
-            size_hint_y: None
-            height:root.height
-            text: 'Naive Minimax with Alpha Beta Pruning'
-            on_release: dropdown.select('NABPMM')
-        Button:
-            size_hint_y: None
-            height:root.height
-            text: 'Minimax with Alpha Beta Pruning'
             on_release: dropdown.select('ABPMM')
 
 

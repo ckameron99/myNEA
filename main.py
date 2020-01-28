@@ -60,7 +60,11 @@ class MenuScreen(Screen):
         'Minimax':aiAlgorithms.MiniMax,
         'NABPMM':aiAlgorithms.NABPMM,
         'ABPMM':aiAlgorithms.ABPMM,
-        'Choose AI':aiAlgorithms.NoneAI
+        'Choose AI':aiAlgorithms.NoneAI,
+        'Random':aiAlgorithms.Random,
+        'Easy':aiAlgorithms.Easy,
+        'Medium':aiAlgorithms.Medium,
+        'Hard':aiAlgorithms.Hard
         }
         games={
         'NByN':NByN,
@@ -236,6 +240,7 @@ class NByN(Screen):
             #get the move from the AI
             move=self.ai.getMove(self.board.currentPlayerNum) #if the game is in two player mode, then the move will be None
             value=self.board.players[self.board.currentPlayerNum].value
+            name=self.board.players[self.board.currentPlayerNum].name
             if move: #If the AI exists, then play the AI's move, otherwise, leave the incremented player to allow the second player to place their move
                 self.board.placeMove(move,value) #Change the logical representation of the board to contain the new move
                 self.b[move[1]][move[0]].text=str(value) #Change the graphical representation of the board to contain the move, so that the user has feedback of their move
