@@ -1,19 +1,26 @@
 <MenuScreen>:
     BoxLayout:
+        orientation: "vertical"
         size_hint: 0.3, 0.2
         pos_hint: {"center_x": 0.5, "center_y": 0.7}
         Button:
-            text: 'Start'
-            size_hint: 2,1
+            text: 'N by M'
+            size_hint: 1,1
             on_press: root.startNByN()
-        TextInput:
-            text: '3'
-            multiline: False
-            on_text_validate: root.update(self.text,None)
-        TextInput:
-            text: '3'
-            multiline: False
-            on_text_validate: root.update(None,self.text)
+        BoxLayout:
+            Label:
+                text: "vertical size"
+            TextInput:
+                text: '3'
+                multiline: False
+                on_text_validate: root.update(self.text,None)
+        BoxLayout:
+            Label:
+                text: "horizontal size"
+            TextInput:
+                text: '3'
+                multiline: False
+                on_text_validate: root.update(None,self.text)
 
     Button:
         size_hint: 0.2, 0.2
