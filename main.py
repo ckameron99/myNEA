@@ -333,10 +333,13 @@ class UltimateTicTacToe(NByN):
         self.user2=user2
         self.mainBoard=Board(dimensions=[w,h],user1=user1,user2=user2) #represents the board of won subboards
         self.subBoards=numpy.ndarray((3,3),dtype=numpy.dtype(Board)) #contains all the subboards in the same shape as the board of won subboards
+        self.subAIs=numpy.ndarray((3,3),dtype=ai)
         for index,x in numpy.ndenumerate(self.subBoards):
             self.subBoards[index]=Board(dimensions=[3,3],user1=user1,user2=user2)
+            self.subAIs[index]=ai(self.subBoards[index])
         self.ai=ai(self.mainBoard)
         super(NByN,self).__init__(**kwargs)
+        self.guiTiles=numpy.ndarray((3,3,3,3),dtype=UltimateTile)
         for cellNum in range(81): #create the 9x9 ((3x3)x3x3)
             mainBoardY=cellNum//27
             subBoardY=(cellNum%27)//9
@@ -345,6 +348,8 @@ class UltimateTicTacToe(NByN):
             tile=UltimateTile(text="",mainBoardX=mainBoardX,mainBoardY=mainBoardY,subBoardX=subBoardX,subBoardY=subBoardY)
             tile.bind(on_press=self.makeMove)
             self.grid.add_widget(tile)
+            self.guiTiles[mainBoardX][mainBoardY][subBoardX][subBoardY]=tile
+        print(self.guiTiles)
 
     def makeMove(self,instance):
         name=self.mainBoard.players[self.mainBoard.currentPlayerNum].name
@@ -362,6 +367,26 @@ class UltimateTicTacToe(NByN):
                     popup.open()
                     return True
             self.mainBoard.currentPlayerNum=(self.mainBoard.currentPlayerNum+1)%len(self.mainBoard.players)
+
+            mainMove=self.ai.getMove(self.mainBoard.currentPlayerNum)
+            if mainMove:
+                subMove=self.subAIs[mainMove].getMove(self.mainBoard.currentPlayerNum)
+                instance=self.guiTiles[mainMove][subMove]
+                instance.text=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value) #change the GUI to reflect the player's move
+                self.subBoards[instance.mainBoardX][instance.mainBoardY].placeMove((instance.subBoardX,instance.subBoardY),str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)) #change the logical representation of the game to reflect the move
+                if self.subBoards[instance.mainBoardX][instance.mainBoardY].checkWin(value=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)):
+                    self.subBoards[instance.mainBoardX][instance.mainBoardY].setWinner(str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)) #if the subboard is won, prevent further moves from being placed in it
+                    self.mainBoard.placeMove((instance.mainBoardX,instance.mainBoardY),str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)) #if the subboard is won, place a move in the mainboard and check if the main board is now won
+                    if self.mainBoard.checkWin(value=str(self.mainBoard.players[self.mainBoard.currentPlayerNum].value)):
+                        self.winner=self.mainBoard.currentPlayerNum
+                        popup = Popup(title='Winner!',
+                        content=Label(text="{} has won the game!".format(name)),
+                        size_hint=(None, None), size=(max(min(self.width,self.height)/3*2,200),max(min(self.width,self.height)/3*2,200)))
+                        popup.open()
+                        return True
+                self.mainBoard.currentPlayerNum=(self.mainBoard.currentPlayerNum+1)%len(self.mainBoard.players)
+
+
 
     def loadFile(self, path, filename):
         with open(os.path.join(path, filename[0]).replace("/savedGames/savedGames/","/savedGames/") ,"rb") as f:
