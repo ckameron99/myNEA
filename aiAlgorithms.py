@@ -244,7 +244,7 @@ class ABPMM:
     def __init__(self,board):
         self.playerIndex=None
         self.board=board
-    def getMove(self,playerIndex):
+    def getMove(self,playerIndex,exception=None):
         maxDepth=-1
         for index, value in numpy.ndenumerate(self.board.cells):
             if self.board.cells[index]=="0.0":
@@ -258,7 +258,7 @@ class ABPMM:
         nextPlayerNum%=len(self.board.players)
         playerValue=self.board.players[playerIndex].value
         for index,value in numpy.ndenumerate(self.board.cells):
-            if self.board.cells[index]=="0.0":
+            if self.board.cells[index]=="0.0" and index!=exception:
                 self.board.cells[index]=playerValue
                 val,moveDepth=self.abpmm(maxDepth,nextPlayerNum,-inf,inf)
                 self.board.cells[index]="0.0"
@@ -358,11 +358,11 @@ class Difficulty:
         self.perfectAI=ABPMM(self.board)
     def _setDifficulty_(self):
         self.difficulty=None
-    def getMove(self,playerIndex):
+    def getMove(self,playerIndex,exception=None):
         if random.random()>self.difficulty:
-            return self.randomAI.getMove(playerIndex)
+            return self.randomAI.getMove(playerIndex,exception=exception)
         else:
-            return self.perfectAI.getMove(playerIndex)
+            return self.perfectAI.getMove(playerIndex,exception=exception)
 
 class Easy(Difficulty):
     def _setDifficulty_(self):
@@ -379,12 +379,12 @@ class Hard(Difficulty):
 class Random:
     def __init__(self,board):
         self.board=board
-    def getMove(self,playerIndex):
+    def getMove(self,playerIndex,exception=None):
         while 1:
             move=[]
             for size in self.board.sizes:
                 location=random.randint(0,size-1)
                 move.append(location)
             move=tuple(move)
-            if self.board.cells[move]=="0.0":
+            if self.board.cells[move]=="0.0" and move!=exception:
                 return move

@@ -415,6 +415,7 @@ class QuantumTicTacToe(NByN):
         self.moveNumber=1
         self.user1=user1
         self.user2=user2
+        self.guiTiles=numpy.empty([3,3],dtype=Tile)
         self.firstMove=True #used to keep track of which move each player is on, as each turn each player places two moves
         self.collapsedBoard=Board(dimensions=[3,3],user1=user1,user2=user2) #track the collapsed moves, to detect a win
         self.superPositionBoard=numpy.ndarray((3,3),dtype=numpy.dtype(self.QuantumTile)) #used to contain the quantum tiles, which manage the GUI aspect of the cells, and track the entanglementes between themselves
@@ -430,6 +431,7 @@ class QuantumTicTacToe(NByN):
                 #create the GUI cells and allocate them to the quantum tile objects
                 tile=Tile(text="",xLoc=x,yLoc=y)
                 tile.bind(on_press=self.makeMove)
+                self.guiTiles[x][y]=tile
                 self.grid.add_widget(tile)
                 self.superPositionBoard[x][y].guiTile=tile
 
@@ -441,6 +443,8 @@ class QuantumTicTacToe(NByN):
                 self.firstMoveX=instance.xLoc
                 self.firstMoveY=instance.yLoc
                 instance.text+="{}{} ".format(self.collapsedBoard.players[self.collapsedBoard.currentPlayerNum].value,self.moveNumRepr(self.moveNumber)) #add the first move to the GUI
+                if instance.text.count(" ")%3==0:
+                    instance.text+="\n"
             else:
                 if not (instance.xLoc==self.firstMoveX and instance.yLoc==self.firstMoveY): #ensure that the player does not place both their moves in the same cell
                     self.firstMove^=1 #change back to first move
@@ -454,6 +458,25 @@ class QuantumTicTacToe(NByN):
                         self.superPositionBoard[self.firstMoveX][self.firstMoveY].quantumStates[self.moveNumber]=self.superPositionBoard[instance.xLoc][instance.yLoc]
                     else: #if the id's of the tiles match, then begin the collapse, after finding which way they should collapse
                         self.getFirstMovePrecidenceAndCollapse(self.firstMoveX,self.firstMoveY,instance.xLoc,instance.yLoc,self.moveNumber)
+                    self.moveNumber+=1
+                    self.collapsedBoard.currentPlayerNum=(self.collapsedBoard.currentPlayerNum+1)%len(self.collapsedBoard.players)
+                move=self.ai.getMove(self.collapsedBoard.currentPlayerNum)
+                if move:
+                    firstMove=move
+                    self.guiTiles[move].text+="{}{} ".format(self.collapsedBoard.players[self.collapsedBoard.currentPlayerNum].value,self.moveNumRepr(self.moveNumber))
+                    if self.guiTiles[move].text.count(" ")%3==0:
+                        self.guiTiles[move].text+="\n"
+                    while move==firstMove:
+                        move=self.ai.getMove(self.collapsedBoard.currentPlayerNum,exception=firstMove)
+                    self.guiTiles[move].text+="{}{} ".format(self.collapsedBoard.players[self.collapsedBoard.currentPlayerNum].value,self.moveNumRepr(self.moveNumber))
+                    if self.guiTiles[move].text.count(" ")%3==0:
+                        self.guiTiles[move].text+="\n"
+                    if self.superPositionBoard[self.guiTiles[move].xLoc][self.guiTiles[move].yLoc].id!=self.superPositionBoard[firstMove].id: #if the id's of the tiles of the two moves don't match, make them match
+                        self.superPositionBoard[self.guiTiles[move].xLoc][self.guiTiles[move].yLoc].updateTileId(self.superPositionBoard[firstMove].id)
+                        self.superPositionBoard[self.guiTiles[move].xLoc][self.guiTiles[move].yLoc].quantumStates[self.moveNumber]=self.superPositionBoard[firstMove]
+                        self.superPositionBoard[firstMove].quantumStates[self.moveNumber]=self.superPositionBoard[self.guiTiles[move].xLoc][self.guiTiles[move].yLoc]
+                    else: #if the id's of the tiles match, then begin the collapse, after finding which way they should collapse
+                        self.getFirstMovePrecidenceAndCollapse(firstMove[0],firstMove[1],self.guiTiles[move].xLoc,self.guiTiles[move].yLoc,self.moveNumber)
                     self.moveNumber+=1
                     self.collapsedBoard.currentPlayerNum=(self.collapsedBoard.currentPlayerNum+1)%len(self.collapsedBoard.players)
 
