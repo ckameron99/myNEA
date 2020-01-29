@@ -345,11 +345,6 @@ class ABPMM:
         return bestMoveValue,bestMoveDepth+1
 
 
-
-class MCTS:
-    def __init__(self):
-        pass
-
 class Difficulty:
     def __init__(self,board):
         self.board=board
@@ -376,15 +371,83 @@ class Hard(Difficulty):
     def _setDifficulty_(self):
         self.difficulty=0.95
 
+class MCTS:
+    def __init__(self,board):
+        self.board=board
+        self.numSamples=1000
+        self.maxDepth=100
+    def getMove(self,playerIndex,exception=None):
+        bestVal=-inf
+        for index,value in numpy.ndenumerate(self.board.cells):
+            if self.board.cells[index]=="0.0" and index!=exception:
+                self.board.cells[index]=self.board.players[playerIndex].value
+                val=self.mcEval(playerIndex)
+                self.board.cells[index]="0.0"
+                if val>bestVal:
+                    bestVal=val
+                    bestMove=index
+        return bestMove
+    def mcEval(self,playerIndex):
+        wins=0
+        losses=0
+        for i in range(self.numSamples):
+            testBoard=numpy.copy(self.board.cells)
+            self.randomAI=Random(self.board)
+            for depth in range(self.maxDepth):
+                breaker=False
+                for player in self.board.players:
+                    if self.board.checkWin(value=player.value,cells=testBoard):
+                        if player==self.board.players[playerIndex]:
+                            wins+=1
+                            breaker=True
+                            break
+                        else:
+                            losses+=1
+                            breaker=True
+                            break
+                if breaker:
+                    break
+
+                emptyCells=0
+                for index,value in numpy.ndenumerate(testBoard):
+                    if value=="0.0":
+                        emptyCells+=1
+                if emptyCells==0:
+                    break
+                move=self.randomAI.getMove(None,cells=testBoard)
+                testBoard[move]=self.board.players[(playerIndex+depth)%len(self.board.players)].value
+        return (wins-losses)/(wins+losses)
+
+'''_eval(board):
+	Wins=0
+	Losses=0
+	For I in range(numSamples):
+		testBoard=board
+		Move=chooseRandomMove(board)
+		testBoard.makeMove(move)
+		while testBoard is not terminal:
+			Move=chooseRandomMove(testBoard)
+			testBoard.makeMove(move)
+		if testBoard.winner==board.currentPlayer:
+			wins+=1
+		elif testBoard.winner is in board.players:
+			losses+=1
+	return (wins-losses)/(wins+losses)
+'''
+
 class Random:
     def __init__(self,board):
         self.board=board
-    def getMove(self,playerIndex,exception=None):
+    def getMove(self,playerIndex,exception=None,cells=None):
         while 1:
             move=[]
             for size in self.board.sizes:
                 location=random.randint(0,size-1)
                 move.append(location)
             move=tuple(move)
-            if self.board.cells[move]=="0.0" and move!=exception:
-                return move
+            if cells is None:
+                if self.board.cells[move]=="0.0" and move!=exception:
+                    return move
+            else:
+                if cells[move]=="0.0" and move!=exception:
+                    return move

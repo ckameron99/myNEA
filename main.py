@@ -64,7 +64,8 @@ class MenuScreen(Screen):
         'Random':aiAlgorithms.Random,
         'Easy':aiAlgorithms.Easy,
         'Medium':aiAlgorithms.Medium,
-        'Hard':aiAlgorithms.Hard
+        'Hard':aiAlgorithms.Hard,
+        'MCTS':aiAlgorithms.MCTS
         }
         games={
         'NByN':NByN,
